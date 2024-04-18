@@ -13,12 +13,16 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=ORIGINS, # Сервера, которые могут отправлять запросы на Backend
+    allow_origins=ORIGINS,  # Сервера, которые могут отправлять запросы на Backend
     allow_credentials=True,
-    allow_methods=["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=["Content-Type", "Access-Control-Allow-Origin",
-                   "Access-Control-Allow-Methods", "X-Requested-With",
-                   "Authorization", "X-CSRF-Token"]
+    allow_methods=[
+        # "GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"
+    ],
+    allow_headers=[
+        # "Content-Type", "Access-Control-Allow-Origin",
+        # "Access-Control-Allow-Methods", "X-Requested-With",
+        # "Authorization", "X-CSRF-Token"
+    ]
 )  # Побеждаем политику CORS
 
 app.include_router(api_auth_router)
