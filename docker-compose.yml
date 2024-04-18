@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+  backend:
+    container_name: backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    build: .
+    ports:
+      - "8000:8000"
+    command:
+       python3 main.py
+#      First launch
+#      /bin/sh -c "sleep 1 &&
+#      alembic revision --autogenerate -m "initial" &&
+#      alembic upgrade head &&
+#      python3 main.py"
+    volumes:
+      - media:/app/media
+    networks:
+      - default
+  postgres:
+    image: postgres:16.2-alpine3.19
+    container_name: postgres
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - default
+
+
+volumes:
+  media:
+  pgdata:
+
+networks:
+  default:
+    driver: bridge
+#    name: network
