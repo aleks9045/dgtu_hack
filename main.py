@@ -7,15 +7,13 @@ from api.auth.routers import router as api_auth_router
 from pages.auth.routers import router as pages_auth_router
 from api.chat.routers import router as api_chat_router
 
-app = FastAPI()
+from config import ORIGINS
 
-origins = [
-    "*"
-]  # Сервера, которые могут отправлять запросы на Backend
+app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=ORIGINS, # Сервера, которые могут отправлять запросы на Backend
     allow_credentials=True,
     allow_methods=["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type", "Access-Control-Allow-Origin",
