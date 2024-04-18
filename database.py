@@ -36,4 +36,5 @@ class Session(DatabaseData):
             yield s
 
 
+db_data = DatabaseData()
 db_session = Session(f"postgresql+asyncpg://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{HOST}:{PORT}/{POSTGRES_DB}")

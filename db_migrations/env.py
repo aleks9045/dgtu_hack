@@ -7,10 +7,10 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from config import POSTGRES_USER, PORT, POSTGRES_PASSWORD, HOST, POSTGRES_DB
-from database import db_session, Database
+from database import db_session
 from api.auth.models import UserModel
 from api.chat.models import ChatModel
-Base = Database.base
+Base = db_session.base
 
 config = context.config
 
