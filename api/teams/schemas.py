@@ -5,3 +5,7 @@ class TeamCreateSchema(BaseModel):
     id_u: int = Field("creator id")
     name: str = Field("team's name")
     about: str = Field("about team")
+
+class AddUserSchema(BaseModel):
+    id_u: int = Field("user id")
+    id_t: int = Field("team id")

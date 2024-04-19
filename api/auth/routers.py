@@ -95,6 +95,7 @@ async def logout():
 async def get_user(payload: dict = Depends(token.check),
                    session: AsyncSession = Depends(db_session.get_async_session)):
     query = select(
+        UserModel.id_u,
         UserModel.first_name,
         UserModel.last_name,
         UserModel.father_name,
@@ -108,13 +109,14 @@ async def get_user(payload: dict = Depends(token.check),
         result = result.fetchone()
     except IndexError:
         raise HTTPException(status_code=404, detail="Пользователь не найден.")
-    return JSONResponse(status_code=200, content={"first_name": result[0],
-                                                  "last_name": result[1],
-                                                  "father_name": result[2],
-                                                  "email": result[3],
-                                                  "role": result[4],
-                                                  "about": result[5],
-                                                  "photo": result[6]})
+    return JSONResponse(status_code=200, content={"id_u": result[0],
+                                                  "first_name": result[1],
+                                                  "last_name": result[2],
+                                                  "father_name": result[3],
+                                                  "email": result[4],
+                                                  "role": result[5],
+                                                  "about": result[6],
+                                                  "photo": result[7]})
 
 
 @router.delete('/user', summary="Delete user")
@@ -184,6 +186,15 @@ async def delete_photo(payload: dict = Depends(token.check),
 
 @router.get('/all_user', summary="Get all users")
 async def all_user(session: AsyncSession = Depends(db_session.get_async_session)):
-    result = await session.execute(select(UserModel).where(1 == 1))
-    print(result.fetchall())
-    return JSONResponse(status_code=200, content={"detail": "Успешно."})
+    res_dict = []
+    result = await session.execute(select(UserModel.id_u, UserModel.first_name, UserModel.last_name, UserModel.father_name,
+                   UserModel.email, UserModel.role, UserModel.photo).where(1 == 1).order_by(UserModel.id_u))
+    for i in result.all():
+        res_dict.append({"id": i[0],
+                         "first_name": i[1],
+                         "last_name": i[2],
+                         "father_name": i[3],
+                         "email": i[4],
+                         "role": i[5],
+                         "photo": i[6]})
+    return JSONResponse(status_code=200, content=res_dict)
