@@ -15,8 +15,8 @@ class TeamModel(Base):
 class TeamLeadModel(Base):
     __tablename__ = "teamlead"
     id_tl = Column(SmallInteger, primary_key=True, autoincrement=True)
-    user = Column(SmallInteger, ForeignKey('user.id_u'), nullable=False)
-    team = Column(SmallInteger, ForeignKey('team.id_t'), nullable=False)
+    user = Column(SmallInteger, ForeignKey('user.id_u'), nullable=True)
+    team = Column(SmallInteger, ForeignKey('team.id_t'), nullable=True)
 
 class JobModel(Base):
     __tablename__ = "job"

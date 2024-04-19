@@ -43,7 +43,7 @@ async def create_user(schema: UserCreateSchema,
         await session.commit()
     except Exception:
         raise HTTPException(status_code=400, detail="Произошла неизвестная ошибка.")
-    return JSONResponse(status_code=200, content={"detail": "Пользователь был добавлен."})
+    return JSONResponse(status_code=201, content={"detail": "Пользователь был добавлен."})
 
 
 @router.post('/login', summary="Create access and refresh tokens")
