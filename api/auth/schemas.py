@@ -14,3 +14,11 @@ class UserCreateSchema(BaseModel):
 class UserLoginSchema(BaseModel):
     email: str = Field(title="user's email")
     password: str = Field(title="user's password")
+
+class UserPatchSchema(BaseModel):
+    first_name: str = Field(title="user's first_name", default=None)
+    last_name: str = Field(title="user's last_name", default=None)
+    father_name: str = Field(title="user's father_name", default=None)
+    password: str = Field(title="user's password", default=None)
+    role: str = Field(title="user's role", default=None)
+    about: str = Field(title="about user", default=None)

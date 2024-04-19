@@ -7,11 +7,10 @@ from fastapi.routing import APIRouter
 from sqlalchemy import insert, select, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-
 from database import db_session
 from api.auth.utils import password, token
 from api.auth.models import UserModel
-from api.auth.schemas import UserCreateSchema, UserLoginSchema
+from api.auth.schemas import UserCreateSchema, UserLoginSchema, UserPatchSchema
 
 router = APIRouter(
     prefix="/auth",
@@ -135,10 +134,37 @@ async def delete_user(payload: dict = Depends(token.check),
 
 
 @router.patch('/user', summary="Change user's information")
-async def patch_user(request: Request, payload: dict = Depends(token.check),
+async def patch_user(schema: UserPatchSchema, payload: dict = Depends(token.check),
                      session: AsyncSession = Depends(db_session.get_async_session)):
-    data = await request.json()
-    stmt = update(UserModel).where(UserModel.id_u == int(payload["sub"])).values(name=data["name"])
+    schema = schema.model_dump()
+    result = await session.execute(select(
+        UserModel.first_name,
+        UserModel.last_name,
+        UserModel.father_name,
+        UserModel.hashed_password,
+        UserModel.role,
+        UserModel.about).where(
+        UserModel.id_u == int(payload["sub"])))
+    result = result.fetchone()
+    passw_is_none = False
+    for count, i in enumerate(schema.keys()):
+        if schema[i] is None:
+            if i == "password":
+                passw_is_none = True
+            schema[i] = result[count]
+    if not passw_is_none:
+        if password.check(schema["password"]):
+            pass
+        if password.verify(schema["password"], result[3]):
+            raise HTTPException(status_code=400, detail="Пароли совпадают")
+    print(schema["password"])
+    stmt = update(UserModel).where(UserModel.id_u == int(payload["sub"])).values(
+        first_name=schema['first_name'],
+        last_name=schema['last_name'],
+        father_name=schema['father_name'],
+        role=schema['role'],
+        about=schema['about'],
+        hashed_password=password.hash(schema["password"]))
     await session.execute(stmt)
     await session.commit()
     return JSONResponse(status_code=200, content={"detail": "Успешно."})
@@ -184,11 +210,13 @@ async def delete_photo(payload: dict = Depends(token.check),
 
     return JSONResponse(status_code=200, content={"detail": "Успешно."})
 
+
 @router.get('/all_user', summary="Get all users")
 async def all_user(session: AsyncSession = Depends(db_session.get_async_session)):
     res_dict = []
-    result = await session.execute(select(UserModel.id_u, UserModel.first_name, UserModel.last_name, UserModel.father_name,
-                   UserModel.email, UserModel.role, UserModel.photo).where(1 == 1).order_by(UserModel.id_u))
+    result = await session.execute(
+        select(UserModel.id_u, UserModel.first_name, UserModel.last_name, UserModel.father_name,
+               UserModel.email, UserModel.role, UserModel.team, UserModel.photo).where(1 == 1).order_by(UserModel.id_u))
     for i in result.all():
         res_dict.append({"id": i[0],
                          "first_name": i[1],
@@ -196,5 +224,6 @@ async def all_user(session: AsyncSession = Depends(db_session.get_async_session)
                          "father_name": i[3],
                          "email": i[4],
                          "role": i[5],
-                         "photo": i[6]})
+                         "team": i[6],
+                         "photo": i[7]})
     return JSONResponse(status_code=200, content=res_dict)
