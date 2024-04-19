@@ -5,7 +5,8 @@ from starlette.staticfiles import StaticFiles
 
 from api.auth.routers import router as api_auth_router
 from pages.auth.routers import router as pages_auth_router
-from api.chat.routers import router as api_chat_router
+from api.teams.routers import router as api_teams_router
+# from api.chat.routers import router as api_chat_router
 
 from config import ORIGINS
 
@@ -27,7 +28,8 @@ app.add_middleware(
 
 app.include_router(api_auth_router)
 app.include_router(pages_auth_router)
-app.include_router(api_chat_router)
+app.include_router(api_teams_router)
+# app.include_router(api_chat_router)
 
 app.mount("/media", StaticFiles(directory="media"), name="media")
 

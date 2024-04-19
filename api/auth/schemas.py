@@ -2,12 +2,15 @@ from pydantic import BaseModel, EmailStr, Field
 
 
 class UserCreateSchema(BaseModel):
-    # email: EmailStr = Field(title="user's email")
-    name: str = Field(title="user's name")
+    first_name: str = Field(title="user's first_name")
+    last_name: str = Field(title="user's last_name")
+    father_name: str = Field(title="user's father_name")
+    email: EmailStr = Field(title="user's email")
     password: str = Field(title="user's password")
+    role: str = Field(title="user's role")
+    about: str = Field(title="about user")
 
 
 class UserLoginSchema(BaseModel):
-    # email: EmailStr = Field(title="user's email")
-    name: str = Field(title="user's name")
+    email: EmailStr = Field(title="user's email")
     password: str = Field(title="user's password")

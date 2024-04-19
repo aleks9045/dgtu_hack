@@ -8,8 +8,10 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from config import POSTGRES_USER, PORT, POSTGRES_PASSWORD, HOST, POSTGRES_DB
 from database import db_session
+from api.teams.models import JobModel, TeamModel, TeamLeadModel
+from api.auth.models import ExpertModel
 from api.auth.models import UserModel
-from api.chat.models import ChatModel
+# from api.chat.models import ChatModel
 Base = db_session.base
 
 config = context.config
@@ -25,7 +27,6 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 target_metadata = Base.metadata
-
 
 def run_migrations_offline() -> None:
     url = config.get_main_option("sqlalchemy.url")

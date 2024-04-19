@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from fastapi.routing import APIRouter
 from sqlalchemy import insert, select, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.sql import text
+
 
 from database import db_session
 from api.auth.utils import password, token
@@ -25,13 +25,18 @@ async def create_user(schema: UserCreateSchema,
     schema = schema.model_dump()
     if password.check(schema["password"]):
         pass
-    query = select(UserModel.id).where(UserModel.name == schema["name"])
+    query = select(UserModel.id_u).where(UserModel.email == schema["email"])
     result = await session.execute(query)
     if result.scalars().all():
-        raise HTTPException(status_code=400, detail="Пользователь с таким именем уже существует.")
+        raise HTTPException(status_code=400, detail="Пользователь уже существует.")
     try:
         stmt = insert(UserModel).values(
-            name=schema["name"],
+            first_name=schema['first_name'],
+            last_name=schema['last_name'],
+            father_name=schema['father_name'],
+            email=schema['email'],
+            role=schema['role'],
+            about=schema['about'],
             photo="media/user_photo/default.png",
             hashed_password=password.hash(schema["password"]))
         await session.execute(statement=stmt)
@@ -45,7 +50,7 @@ async def create_user(schema: UserCreateSchema,
 async def login(schema: UserLoginSchema,
                 session: AsyncSession = Depends(db_session.get_async_session)):
     schema = schema.model_dump()
-    query = select(UserModel.hashed_password).where(UserModel.name == schema["name"])
+    query = select(UserModel.hashed_password).where(UserModel.email == schema["email"])
     result = await session.execute(query)
     result = result.scalars().all()
     if not result:
@@ -59,7 +64,7 @@ async def login(schema: UserLoginSchema,
             status_code=400,
             detail="Неверно введена почта или пароль."
         )
-    result = await session.execute(select(UserModel.id).where(UserModel.name == schema["name"]))
+    result = await session.execute(select(UserModel.id_u).where(UserModel.email == schema["email"]))
     user_id = result.scalars().all()[0]
     return JSONResponse(status_code=201, content={
         "access_token": token.create(user_id, type_="access"),
@@ -70,7 +75,7 @@ async def login(schema: UserLoginSchema,
 @router.get('/refresh', summary="Update access and refresh tokens")
 async def get_new_tokens(payload: dict = Depends(token.check),
                          session: AsyncSession = Depends(db_session.get_async_session)):
-    query = select(UserModel.id).where(UserModel.id == int(payload["sub"]))
+    query = select(UserModel.id_u).where(UserModel.id_u == int(payload["sub"]))
     result = await session.execute(query)
     result = result.all()
     if not result:
@@ -90,27 +95,37 @@ async def logout():
 async def get_user(payload: dict = Depends(token.check),
                    session: AsyncSession = Depends(db_session.get_async_session)):
     query = select(
-        UserModel.name,
+        UserModel.first_name,
+        UserModel.last_name,
+        UserModel.father_name,
+        UserModel.email,
+        UserModel.role,
+        UserModel.about,
         UserModel.photo).where(
-        UserModel.id == int(payload["sub"]))
+        UserModel.id_u == int(payload["sub"]))
     result = await session.execute(query)
     try:
-        result = result.all()[0]
+        result = result.fetchone()
     except IndexError:
         raise HTTPException(status_code=404, detail="Пользователь не найден.")
-    return JSONResponse(status_code=200, content={"name": result[0],
-                                                  "photo": result[1]})
+    return JSONResponse(status_code=200, content={"first_name": result[0],
+                                                  "last_name": result[1],
+                                                  "father_name": result[2],
+                                                  "email": result[3],
+                                                  "role": result[4],
+                                                  "about": result[5],
+                                                  "photo": result[6]})
 
 
 @router.delete('/user', summary="Delete user")
 async def delete_user(payload: dict = Depends(token.check),
                       session: AsyncSession = Depends(db_session.get_async_session)):
-    query = select(UserModel.photo).where(UserModel.id == int(payload["sub"]))
+    query = select(UserModel.photo).where(UserModel.id_u == int(payload["sub"]))
     result = await session.execute(query)
     result = result.scalars().all()
     os.remove(result[0])
 
-    stmt = delete(UserModel).where(UserModel.id == int(payload["sub"]))
+    stmt = delete(UserModel).where(UserModel.id_u == int(payload["sub"]))
     await session.execute(stmt)
     await session.commit()
 
@@ -121,7 +136,7 @@ async def delete_user(payload: dict = Depends(token.check),
 async def patch_user(request: Request, payload: dict = Depends(token.check),
                      session: AsyncSession = Depends(db_session.get_async_session)):
     data = await request.json()
-    stmt = update(UserModel).where(UserModel.id == int(payload["sub"])).values(name=data["name"])
+    stmt = update(UserModel).where(UserModel.id_u == int(payload["sub"])).values(name=data["name"])
     await session.execute(stmt)
     await session.commit()
     return JSONResponse(status_code=200, content={"detail": "Успешно."})
@@ -131,7 +146,7 @@ async def patch_user(request: Request, payload: dict = Depends(token.check),
 async def patch_photo(payload: dict = Depends(token.check), photo: UploadFile = File(...),
                       session: AsyncSession = Depends(db_session.get_async_session)):
     id_ = int(payload["sub"])
-    query = select(UserModel.photo).where(UserModel.id == id_)
+    query = select(UserModel.photo).where(UserModel.id_u == id_)
     result = await session.execute(query)
     result = result.scalars().all()
     if result[0] != photo.filename and result[0] != "media/user_photo/default.png":
@@ -141,7 +156,7 @@ async def patch_photo(payload: dict = Depends(token.check), photo: UploadFile = 
         async with aiofiles.open(file_path, 'wb') as out_file:
             content = photo.file.read()
             await out_file.write(content)
-        stmt = update(UserModel).where(UserModel.id == id_).values(photo=file_path)
+        stmt = update(UserModel).where(UserModel.id_u == id_).values(photo=file_path)
         await session.execute(statement=stmt)
         await session.commit()
     except Exception:
@@ -155,11 +170,11 @@ async def delete_photo(payload: dict = Depends(token.check),
                        session: AsyncSession = Depends(db_session.get_async_session)):
     try:
         id_ = int(payload["sub"])
-        query = select(UserModel.photo).where(UserModel.id == id_)
+        query = select(UserModel.photo).where(UserModel.id_u == id_)
         result = await session.execute(query)
         result = result.scalars().all()
         os.remove(result[0])
-        stmt = update(UserModel).where(UserModel.id == id_).values(photo="media/user_photo/default.png")
+        stmt = update(UserModel).where(UserModel.id_u == id_).values(photo="media/user_photo/default.png")
         await session.execute(statement=stmt)
         await session.commit()
     except Exception:
