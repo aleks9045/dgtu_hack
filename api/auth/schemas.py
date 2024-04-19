@@ -12,5 +12,5 @@ class UserCreateSchema(BaseModel):
 
 
 class UserLoginSchema(BaseModel):
-    email: EmailStr = Field(title="user's email")
+    email: str = Field(title="user's email")
     password: str = Field(title="user's password")

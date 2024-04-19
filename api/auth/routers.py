@@ -182,8 +182,8 @@ async def delete_photo(payload: dict = Depends(token.check),
 
     return JSONResponse(status_code=200, content={"detail": "Успешно."})
 
-# @router.get('/all_user', summary="Get all users")
-# async def all_user(value: str, value2: str,session: AsyncSession = Depends(db.get_async_session)):
-#     await session.execute(text(f'INSERT INTO "user"(name, hashed_password) VALUES ("{value}", "{value2}")'))
-#     await session.commit()
-#     return JSONResponse(status_code=200, content={"detail": "Успешно."})
+@router.get('/all_user', summary="Get all users")
+async def all_user(session: AsyncSession = Depends(db_session.get_async_session)):
+    result = await session.execute(select(UserModel).where(1 == 1))
+    print(result.fetchall())
+    return JSONResponse(status_code=200, content={"detail": "Успешно."})
