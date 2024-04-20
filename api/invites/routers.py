@@ -25,6 +25,7 @@ router = APIRouter(
 async def add_invite(schema: AddUserSchema, payload: dict = Depends(token.check),
                            session: AsyncSession = Depends(db_session.get_async_session)):
     schema = schema.model_dump()
+    print(schema)
     stmt = insert(InviteModel).values(user=schema['id_u'], team=schema["id_t"])
     await session.execute(stmt)
     await session.commit()
