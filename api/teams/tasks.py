@@ -29,6 +29,6 @@ def send_notification_delete(email_to: str, first_name: str, last_name: str, tea
     email = MIMEText(f'''
         <div style="background-color: #2B2D31; border-radius:10px;">
         <h1 style="color: white; padding: 18px 0 0 20px;">Здравствуйте, {first_name} {last_name}</h1>
-        <h3 style="color: white; padding: 15px 0 0 20px;">Вы были удалены из команды {team_name}</h3>
+        <h3 style="color: white; padding: 15px 0 20px 20px;">Вы были удалены из команды {team_name}</h3>
         </div>''', "html")
     smtp_server.sendmail(MAIL_USERNAME, email_to, email.as_string())

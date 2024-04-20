@@ -62,8 +62,23 @@ async def get_all_invites_by_team(id_t: int, payload: dict = Depends(token.check
         select(InviteModel.id_i, InviteModel.user, InviteModel.team).where(InviteModel.team == id_t))
     invite = result.fetchall()
     for i in invite:
+        result = await session.execute(
+            select(UserModel.id_u,
+                   UserModel.first_name,
+                   UserModel.last_name,
+                   UserModel.father_name,
+                   UserModel.role,
+                   UserModel.about,
+                   UserModel.photo).where(UserModel.id_u == i[1]))
+        team_user = result.fetchone()
         res_dict.append({"id_i": i[0],
-                         "id_u": i[1],
+                         "user": {"id": team_user[0],
+                                   "first_name": team_user[1],
+                                   "last_name": team_user[2],
+                                   "father_name": team_user[3],
+                                   "role": team_user[4],
+                                   "about": team_user[5],
+                                   "photo": team_user[6]},
                          "id_t": i[2]})
     return JSONResponse(status_code=200, content=res_dict)
 
