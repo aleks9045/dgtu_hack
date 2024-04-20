@@ -150,7 +150,11 @@ async def add_case(schema: AddCaseSchema, payload: dict = Depends(token.check),
         company=schema["id_co"])
     await session.execute(statement=stmt)
     await session.commit()
-    return JSONResponse(status_code=200, content={"detail": "Кейс успешно добавлен."})
+    result = await session.execute(select(CaseModel.id_ca).where(CaseModel.name == schema["name"],
+                                                                 CaseModel.about == schema["about"],
+                                                                 CaseModel.company == schema["id_co"]))
+    id_ca = result.fetchone()[0]
+    return JSONResponse(status_code=200, content={"id_ca": id_ca})
 
 
 @router.delete("/case")
