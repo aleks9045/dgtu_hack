@@ -161,10 +161,9 @@ async def delete_case(id_ca: int,
     return JSONResponse(status_code=200, content={"detail": "Успешно."})
 
 @router.patch('/file', summary="Change case's file")
-async def patch_file(schema: AddCaseFileSchema, payload: dict = Depends(token.check), photo: UploadFile = File(...),
+async def patch_file(id_ca: int, payload: dict = Depends(token.check), photo: UploadFile = File(...),
                       session: AsyncSession = Depends(db_session.get_async_session)):
-    schema = schema.model_dump()
-    result = await session.execute(select(CaseModel.file).where(CaseModel.id_ca == schema["id_ca"]))
+    result = await session.execute(select(CaseModel.file).where(CaseModel.id_ca == id_ca))
     result = result.scalars().all()
     if result[0] != photo.filename and result[0] != "media/case_files/default.png":
         await os.remove(result[0])
@@ -173,7 +172,7 @@ async def patch_file(schema: AddCaseFileSchema, payload: dict = Depends(token.ch
         async with aiofiles.open(file_path, 'wb') as out_file:
             content = photo.file.read()
             await out_file.write(content)
-        stmt = update(CaseModel).where(CaseModel.id_ca == schema["id_ca"]).values(file=file_path)
+        stmt = update(CaseModel).where(CaseModel.id_ca == id_ca).values(file=file_path)
         await session.execute(statement=stmt)
         await session.commit()
     except Exception:
