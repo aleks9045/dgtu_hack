@@ -3,13 +3,13 @@ services:
     container_name: backend
     depends_on:
       - postgres
+      - celery
 #        condition: service_healthy
     build: .
     ports:
       - "8000:8000"
     command:
-#      sh -c "celery -A api.teams.tasks:celery worker --loglevel=INFO &&
-      python3 main.py
+       python3 main.py
 #      First launch
 #      /bin/sh -c "sleep 1 &&
 #      alembic revision --autogenerate -m "initial" &&
@@ -56,6 +56,22 @@ services:
 #      - redis_data:/root/redis
     env_file:
       - .env
+  celery:
+    container_name: celery
+    build: .
+    command:
+      celery -A api.teams.tasks:celery worker --loglevel=INFO
+    depends_on:
+      - redis
+  flower:
+    container_name: flower
+    build: .
+    command:
+      celery -A api.teams.tasks:celery flower
+    depends_on:
+      - celery
+    ports:
+      - "5555:5555"
 volumes:
   media:
   pgdata:

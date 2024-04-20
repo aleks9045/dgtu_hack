@@ -5,7 +5,7 @@ import aiofiles
 from fastapi import Depends, HTTPException, UploadFile, File
 from fastapi.routing import APIRouter
 from fastapi.responses import JSONResponse
-from api.teams.tasks import send_notification
+from api.teams.tasks import send_notification_add, send_notification_delete
 
 from api.auth.models import UserModel
 from api.teams.models import TeamModel, TeamLeadModel
@@ -87,16 +87,13 @@ async def patch_banner(id_t: int, payload: dict = Depends(token.check), photo: U
     if result[0] != photo.filename and result[0] != "media/teams_banner/default.png":
         os.remove(result[0])
     try:
-        print("СШШШШШШЫЫВШШВЫШВЫ")
         file_path = f'media/teams_banner/{photo.filename}'
         async with aiofiles.open(file_path, 'wb') as out_file:
             content = photo.file.read()
             await out_file.write(content)
-        print("aaaaaaa")
         stmt = update(TeamModel).where(TeamModel.id_t == id_t).values(banner=file_path)
         await session.execute(statement=stmt)
         await session.commit()
-        print("fffffffff")
     except Exception as e:
         print(e)
         raise HTTPException(status_code=400, detail="Произошла неизвестная ошибка.")
@@ -187,14 +184,31 @@ async def delete_team(id_u: int, payload: dict = Depends(token.check),
     return JSONResponse(status_code=200, content={"detail": "Успешно."})
 
 
-@router.get("/send_notification")
+@router.get("/send_notification_add")
 async def send(id_u: int, id_t: int, payload: dict = Depends(token.check),
                session: AsyncSession = Depends(db_session.get_async_session)):
     result = await session.execute(
-        select(TeamModel.name, TeamModel.banner).where(TeamModel.id_t == id_t))
+        select(TeamModel.name).where(TeamModel.id_t == id_t))
     team_data = result.fetchone()
     result = await session.execute(
         select(UserModel.email, UserModel.first_name, UserModel.last_name).where(UserModel.id_u == id_u))
     user_data = result.fetchone()
-    send_notification(user_data[0], user_data[1], user_data[2], team_data[0], team_data[1])
+    send_notification_add.delay(user_data[0], user_data[1], user_data[2], team_data[0])
+    return JSONResponse(status_code=200, content={"detail": "Успешно."})
+
+
+@router.get("/send_notification_delete")
+async def send(id_u: int, payload: dict = Depends(token.check),
+               session: AsyncSession = Depends(db_session.get_async_session)):
+    result = await session.execute(
+        select(UserModel.team).where(UserModel.id_u == id_u))
+    user_id = result.fetchone()[0]
+    result = await session.execute(
+        select(TeamModel.name).where(TeamModel.id_t == user_id))
+    team_data = result.fetchone()
+    result = await session.execute(
+        select(UserModel.email, UserModel.first_name, UserModel.last_name).where(UserModel.id_u == id_u))
+    user_data = result.fetchone()
+    print(team_data, user_data)
+    send_notification_delete.delay(user_data[0], user_data[1], user_data[2], team_data[0])
     return JSONResponse(status_code=200, content={"detail": "Успешно."})
