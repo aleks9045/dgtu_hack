@@ -124,7 +124,7 @@ async def delete_user(payload: dict = Depends(token.check),
     query = select(UserModel.photo).where(UserModel.email == payload["sub"])
     result = await session.execute(query)
     result = result.scalars().all()
-    os.remove(result[0])
+    await os.remove(result[0])
 
     stmt = delete(UserModel).where(UserModel.email == payload["sub"])
     await session.execute(stmt)
@@ -179,7 +179,7 @@ async def patch_photo(payload: dict = Depends(token.check), photo: UploadFile = 
     result = await session.execute(query)
     result = result.scalars().all()
     if result[0] != photo.filename and result[0] != "media/user_photo/default.png":
-        os.remove(result[0])
+        await os.remove(result[0])
     try:
         file_path = f'media/user_photo/{photo.filename}'
         async with aiofiles.open(file_path, 'wb') as out_file:
@@ -202,7 +202,7 @@ async def delete_photo(payload: dict = Depends(token.check),
         query = select(UserModel.photo).where(UserModel.id_u == id_)
         result = await session.execute(query)
         result = result.scalars().all()
-        os.remove(result[0])
+        await os.remove(result[0])
         stmt = update(UserModel).where(UserModel.id_u == id_).values(photo="media/user_photo/default.png")
         await session.execute(statement=stmt)
         await session.commit()

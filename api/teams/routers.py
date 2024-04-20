@@ -1,6 +1,5 @@
-from aiofiles import os
-
 import aiofiles
+from aiofiles import os
 from fastapi import Depends, HTTPException, UploadFile, File
 from fastapi.responses import JSONResponse
 from fastapi.routing import APIRouter
@@ -85,7 +84,7 @@ async def patch_banner(id_t: int, payload: dict = Depends(token.check), photo: U
     result = await session.execute(select(TeamModel.banner).where(TeamModel.id_t == id_t))
     result = result.scalars().all()
     if result[0] != photo.filename and result[0] != "media/teams_banner/default.png":
-        os.remove(result[0])
+        await os.remove(result[0])
     try:
         file_path = f'media/teams_banner/{photo.filename}'
         async with aiofiles.open(file_path, 'wb') as out_file:
@@ -105,12 +104,11 @@ async def patch_banner(id_t: int, payload: dict = Depends(token.check), photo: U
 async def delete_banner(id_t: int, payload: dict = Depends(token.check),
                         session: AsyncSession = Depends(db_session.get_async_session)):
     try:
-        id_ = int(payload["sub"])
         query = select(TeamModel.banner).where(TeamModel.id_t == id_t)
         result = await session.execute(query)
         result = result.scalars().all()
-        os.remove(result[0])
-        stmt = update(UserModel).where(UserModel.id_u == id_).values(photo="media/teams_banner/default.png")
+        await os.remove(result[0])
+        stmt = update(UserModel).where(UserModel.email == payload["sub"]).values(photo="media/teams_banner/default.png")
         await session.execute(statement=stmt)
         await session.commit()
     except Exception:
@@ -227,3 +225,15 @@ async def add_job(schema: AddJobSchema, payload: dict = Depends(token.check),
     await session.execute(statement=stmt)
     await session.commit()
     return JSONResponse(status_code=200, content={"detail": "Работа успешно добавлена."})
+
+@router.get('/all_job', summary="Get all jobs")
+async def all_case(session: AsyncSession = Depends(db_session.get_async_session)):
+    res_dict = []
+    result = await session.execute(
+        select(JobModel.id_j, JobModel.github, JobModel.file, JobModel.case).where(1 == 1))
+    for i in result.all():
+        res_dict.append({"id_j": i[0],
+                         "github": i[1],
+                         "file": i[2],
+                         "case": i[3]})
+    return JSONResponse(status_code=200, content=res_dict)

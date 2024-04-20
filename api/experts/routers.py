@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.auth.utils import password, token
 from api.experts.models import ExpertModel, CompanyModel, CaseModel
-from api.experts.schemas import ExpertLoginSchema, ExpertCreateSchema, AddCaseSchema
+from api.experts.schemas import ExpertLoginSchema, ExpertCreateSchema, AddCaseSchema, AddCaseFileSchema
 from database import db_session
 
 router = APIRouter(
@@ -114,10 +114,22 @@ async def patch_photo(payload: dict = Depends(token.check), photo: UploadFile = 
         await session.commit()
     except Exception:
         raise HTTPException(status_code=400, detail="Произошла неизвестная ошибка.")
-
     return JSONResponse(status_code=200, content={"detail": "Успешно."})
 
-
+@router.delete('/photo', summary="Delete expert's photo")
+async def delete_photo(payload: dict = Depends(token.check),
+                       session: AsyncSession = Depends(db_session.get_async_session)):
+    try:
+        query = select(ExpertModel.photo).where(ExpertModel.email == payload["sub"])
+        result = await session.execute(query)
+        result = result.scalars().all()
+        await os.remove(result[0])
+        stmt = update(ExpertModel).where(ExpertModel.email == payload["sub"]).values(photo="media/user_photo/default.png")
+        await session.execute(statement=stmt)
+        await session.commit()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Произошла неизвестная ошибка.")
+    return JSONResponse(status_code=200, content={"detail": "Успешно."})
 
 @router.get('/company', summary="Get information about company")
 async def get_company(id_co: int,
@@ -148,6 +160,39 @@ async def delete_case(id_ca: int, payload: dict = Depends(token.check),
     await session.commit()
     return JSONResponse(status_code=200, content={"detail": "Успешно."})
 
+@router.patch('/file', summary="Change case's file")
+async def patch_file(schema: AddCaseFileSchema, payload: dict = Depends(token.check), photo: UploadFile = File(...),
+                      session: AsyncSession = Depends(db_session.get_async_session)):
+    result = await session.execute(select(CaseModel.file).where(CaseModel.id_ca == schema["id_ca"]))
+    result = result.scalars().all()
+    if result[0] != photo.filename and result[0] != "media/case_files/default.png":
+        await os.remove(result[0])
+    try:
+        file_path = f'media/case_files/{photo.filename}'
+        async with aiofiles.open(file_path, 'wb') as out_file:
+            content = photo.file.read()
+            await out_file.write(content)
+        stmt = update(CaseModel).where(CaseModel.id_ca == schema["id_ca"]).values(file=file_path)
+        await session.execute(statement=stmt)
+        await session.commit()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Произошла неизвестная ошибка.")
+    return JSONResponse(status_code=200, content={"detail": "Успешно."})
+
+@router.delete('/file', summary="Delete case's file")
+async def delete_file(payload: dict = Depends(token.check),
+                       session: AsyncSession = Depends(db_session.get_async_session)):
+    try:
+        query = select(ExpertModel.photo).where(ExpertModel.email == payload["sub"])
+        result = await session.execute(query)
+        result = result.scalars().all()
+        await os.remove(result[0])
+        stmt = update(ExpertModel).where(ExpertModel.email == payload["sub"]).values(photo="media/user_photo/default.png")
+        await session.execute(statement=stmt)
+        await session.commit()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Произошла неизвестная ошибка.")
+    return JSONResponse(status_code=200, content={"detail": "Успешно."})
 
 @router.get('/all_case', summary="Get all cases")
 async def all_case(session: AsyncSession = Depends(db_session.get_async_session)):
