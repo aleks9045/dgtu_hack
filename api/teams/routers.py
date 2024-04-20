@@ -179,7 +179,7 @@ async def delete_team(id_u: int, payload: dict = Depends(token.check),
 
 
 @router.get("/send_notification_add")
-async def send(id_u: int, id_t: int, payload: dict = Depends(token.check),
+async def send(id_u: int, id_t: int,
                session: AsyncSession = Depends(db_session.get_async_session)):
     result = await session.execute(
         select(TeamModel.name).where(TeamModel.id_t == id_t))
@@ -192,7 +192,7 @@ async def send(id_u: int, id_t: int, payload: dict = Depends(token.check),
 
 
 @router.get("/send_notification_delete")
-async def send(id_u: int, payload: dict = Depends(token.check),
+async def send(id_u: int,
                session: AsyncSession = Depends(db_session.get_async_session)):
     result = await session.execute(
         select(UserModel.team).where(UserModel.id_u == id_u))
