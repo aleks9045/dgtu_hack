@@ -144,10 +144,9 @@ async def get_company(id_co: int,
 async def add_case(schema: AddCaseSchema, payload: dict = Depends(token.check),
                    session: AsyncSession = Depends(db_session.get_async_session)):
     stmt = insert(CaseModel).values(
-        name=schema['name'],
-        about=schema['about'],
-        company=schema['id_co'],
-        file="media/case_files/default.png")
+        name=schema["name"],
+        about=schema["about"],
+        company=schema["id_co"])
     await session.execute(statement=stmt)
     await session.commit()
     print("OKKEEEEEE")
