@@ -106,11 +106,7 @@ async def get_company(id_co: int,
     result = await session.execute(
         select(CompanyModel.id_co, CompanyModel.name, CompanyModel.case).where(CompanyModel.id_co == id_co))
     result = result.fetchone()
-    return JSONResponse(status_code=200, content={"id_co": result[0],
-                                                  "name": result[1],
-                                                  "case": result[2]
-                                                  })
-
+    return JSONResponse(status_code=200, content={"name": result[1]})
 
 @router.post('/case', summary="Add case")
 async def add_case(schema: AddCaseSchema, payload: dict = Depends(token.check),
