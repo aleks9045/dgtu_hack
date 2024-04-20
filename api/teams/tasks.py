@@ -24,8 +24,8 @@ def send_notification_delete(email_to: str, first_name: str, last_name: str, tea
     smtp_server = smtplib.SMTP('smtp.gmail.com', 587)
     smtp_server.starttls()
     smtp_server.login(MAIL_USERNAME, MAIL_PASSWORD)
-    email = MIMEText(
-        f'<h1 style="color: red;">Здравствуйте, {first_name} {last_name}</h1>'
-        f'<h3 style="color: blue;">Вы были удалены из команды {team_name}</h3>',
-        'html')
+    email = MIMEText(f'''
+        <h1 style="color: white; padding: 18px 0 0 20px;">Здравствуйте, {first_name} {last_name}</h1>
+        <h3 style="color: white; padding: 15px 0 0 20px;">Вы были удалены из команды {team_name}</h3>''',
+        "html")
     smtp_server.sendmail(MAIL_USERNAME, email_to, email.as_string())
