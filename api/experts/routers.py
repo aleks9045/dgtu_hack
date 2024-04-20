@@ -6,8 +6,8 @@ from fastapi.responses import JSONResponse
 from fastapi.routing import APIRouter
 from sqlalchemy import insert, select, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from api.experts.schemas import ExpertLoginSchema, ExpertCreateSchema
-from api.experts.models import ExpertModel, CompanyModel
+from api.experts.schemas import ExpertLoginSchema, ExpertCreateSchema, AddCaseSchema
+from api.experts.models import ExpertModel, CompanyModel, CaseModel
 from database import db_session
 from api.auth.utils import password, token
 from api.admin.schemas import AdminLoginSchema
@@ -69,6 +69,7 @@ async def login(schema: ExpertLoginSchema,
         "refresh_token": token.create(schema["email"], type_="refresh")
     })
 
+
 @router.get('/expert', summary="Get information about user")
 async def get_user(payload: dict = Depends(token.check),
                    session: AsyncSession = Depends(db_session.get_async_session)):
@@ -85,7 +86,7 @@ async def get_user(payload: dict = Depends(token.check),
     result = await session.execute(query)
     try:
         result = result.fetchone()
-        print(result[0])
+        r = result[0]
     except Exception:
         raise HTTPException(status_code=404, detail="Пользователь не найден.")
     return JSONResponse(status_code=200, content={"id": result[0],
@@ -97,22 +98,27 @@ async def get_user(payload: dict = Depends(token.check),
                                                   "company": result[6],
                                                   "photo": result[7]})
 
+
 @router.get('/company', summary="Get information about company")
 async def get_user(id_co: int,
                    session: AsyncSession = Depends(db_session.get_async_session)):
-    result = await session.execute(select(CompanyModel.id_co, CompanyModel.name, CompanyModel.case).where(CompanyModel.id_co == id_co))
+    result = await session.execute(
+        select(CompanyModel.id_co, CompanyModel.name, CompanyModel.case).where(CompanyModel.id_co == id_co))
     result = result.fetchone()
     return JSONResponse(status_code=200, content={"id_co": result[0],
                                                   "name": result[1],
                                                   "case": result[2]
                                                   })
 
+
 @router.post('/case', summary="Add case")
-async def get_user(id_co: int,
+async def get_user(schema: AddCaseSchema,
                    session: AsyncSession = Depends(db_session.get_async_session)):
-    result = await session.execute(select(CompanyModel.id_co, CompanyModel.name, CompanyModel.case).where(CompanyModel.id_co == id_co))
-    result = result.fetchone()
-    return JSONResponse(status_code=200, content={"id_co": result[0],
-                                                  "name": result[1],
-                                                  "case": result[2]
-                                                  })
+    stmt = insert(CaseModel).values(
+        name=schema['name'],
+        about=schema['about'],
+        company=schema['id_co'],
+        file="media/case_files/default.png")
+    await session.execute(statement=stmt)
+    await session.commit()
+    return JSONResponse(status_code=200, content={"detail": "Кейс успешно добавлен."})

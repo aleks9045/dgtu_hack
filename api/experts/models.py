@@ -35,9 +35,11 @@ class CaseModel(Base):
     id_ca = Column(SmallInteger, primary_key=True, autoincrement=True)
     name = Column(VARCHAR(64), nullable=False, unique=True)
     about = Column(VARCHAR(255), nullable=True)
+    file = Column(VARCHAR(255), nullable=True)
+    company = Column(SmallInteger, ForeignKey('company.id_co'), nullable=True)
 
 class CompanyModel(Base):
     __tablename__ = "company"
     id_co = Column(SmallInteger, primary_key=True, autoincrement=True)
     name = Column(VARCHAR(32), nullable=False)
-    case = Column(SmallInteger, ForeignKey('case.id_ca'), nullable=True)
+

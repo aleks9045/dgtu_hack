@@ -18,3 +18,4 @@ class ExpertLoginSchema(BaseModel):
 class AddCaseSchema(BaseModel):
     name: str = Field()
     about: str = Field()
+    id_co: int = Field()
