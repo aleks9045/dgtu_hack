@@ -23,4 +23,5 @@ class JobModel(Base):
     __tablename__ = "job"
     id_j = Column(SmallInteger, primary_key=True, autoincrement=True)
     github = Column(VARCHAR(255), nullable=False)
+    file = Column(VARCHAR(255), nullable=True)
     case = Column(SmallInteger, ForeignKey('case.id_ca', ondelete="CASCADE"), nullable=False)

@@ -6,8 +6,9 @@ from fastapi.responses import JSONResponse
 from fastapi.routing import APIRouter
 from sqlalchemy import insert, select, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from api.experts.schemas import ExpertLoginSchema, ExpertCreateSchema, AddCaseSchema
+from api.experts.schemas import ExpertLoginSchema, ExpertCreateSchema, AddCaseSchema, AddJobSchema
 from api.experts.models import ExpertModel, CompanyModel, CaseModel
+from api.teams.models import JobModel
 from database import db_session
 from api.auth.utils import password, token
 from api.admin.schemas import AdminLoginSchema
@@ -123,7 +124,7 @@ async def add_case(schema: AddCaseSchema, payload: dict = Depends(token.check),
     await session.commit()
     return JSONResponse(status_code=200, content={"detail": "Кейс успешно добавлен."})
 
-@router.get("/case")
+@router.delete("/case")
 async def delete_case(id_ca: int, payload: dict = Depends(token.check),
                       session: AsyncSession = Depends(db_session.get_async_session)):
     await session.execute(delete(CaseModel).where(CaseModel.id_ca == id_ca))

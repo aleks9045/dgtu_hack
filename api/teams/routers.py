@@ -8,9 +8,9 @@ from fastapi.responses import JSONResponse
 from api.teams.tasks import send_notification_add, send_notification_delete
 
 from api.auth.models import UserModel
-from api.teams.models import TeamModel, TeamLeadModel
+from api.teams.models import TeamModel, TeamLeadModel, JobModel
 from api.invites.models import InviteModel
-from api.teams.schemas import TeamCreateSchema, AddUserSchema, TeamPatchSchema
+from api.teams.schemas import TeamCreateSchema, AddUserSchema, TeamPatchSchema, AddJobSchema
 from sqlalchemy import insert, select, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from api.auth.utils import token
@@ -219,3 +219,15 @@ async def all_teams(session: AsyncSession = Depends(db_session.get_async_session
                          "about": i[2],
                          "banner": i[3]})
     return JSONResponse(status_code=200, content=res_dict)
+
+@router.post('/job', summary="Add job")
+async def add_job(schema: AddJobSchema, payload: dict = Depends(token.check),
+                   session: AsyncSession = Depends(db_session.get_async_session)):
+    stmt = insert(JobModel).values(
+        name=schema['name'],
+        about=schema['about'],
+        company=schema['id_co'],
+        file="media/case_files/default.png")
+    await session.execute(statement=stmt)
+    await session.commit()
+    return JSONResponse(status_code=200, content={"detail": "Кейс успешно добавлен."})
