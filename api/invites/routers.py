@@ -80,9 +80,9 @@ async def invite_accept(schema: AddUserSchema, payload: dict = Depends(token.che
 
 
 @router.delete("/invite_refuse")
-async def invite_refuse(schema: AddUserSchema,
+async def invite_refuse(id_u: int, id_t: int,
                         session: AsyncSession = Depends(db_session.get_async_session)):
-    stmt = delete(InviteModel).where(InviteModel.user == schema["id_u"], InviteModel.team == schema["id_t"])
+    stmt = delete(InviteModel).where(InviteModel.user == id_u, InviteModel.team == id_t)
     await session.execute(stmt)
     await session.commit()
     return JSONResponse(status_code=200, content={"detail": "Пользователь был успешно удалён."})
