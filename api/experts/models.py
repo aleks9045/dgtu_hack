@@ -14,7 +14,7 @@ class ExpertModel(Base):
     company = Column(VARCHAR(32), nullable=True)
     hashed_password = Column(VARCHAR(1023), nullable=False)
     photo = Column(VARCHAR(255), nullable=True)
-    case = Column(SmallInteger, ForeignKey('case.id_c'), nullable=False)
+    case = Column(SmallInteger, ForeignKey('case.id_c'), nullable=True)
 
 
 class MarkModel(Base):
