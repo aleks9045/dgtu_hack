@@ -221,9 +221,9 @@ async def all_teams(session: AsyncSession = Depends(db_session.get_async_session
 async def add_job(schema: AddJobSchema, payload: dict = Depends(token.check),
                   session: AsyncSession = Depends(db_session.get_async_session)):
     schema = schema.model_dump()
-    print(schema)
     stmt = insert(JobModel).values(
-        github=schema['github'])
+        github=schema['github'],
+        case=schema['id_ca'])
     await session.execute(statement=stmt)
     await session.commit()
     return JSONResponse(status_code=200, content={"detail": "Работа успешно добавлена."})

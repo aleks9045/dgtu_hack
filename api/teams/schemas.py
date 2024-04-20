@@ -20,3 +20,4 @@ class TeamPatchSchema(BaseModel):
 
 class AddJobSchema(BaseModel):
     github: str = Field()
+    id_ca: int = Field()

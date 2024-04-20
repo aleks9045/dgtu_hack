@@ -150,12 +150,11 @@ async def add_case(schema: AddCaseSchema, payload: dict = Depends(token.check),
         company=schema["id_co"])
     await session.execute(statement=stmt)
     await session.commit()
-    print("OKKEEEEEE")
     return JSONResponse(status_code=200, content={"detail": "Кейс успешно добавлен."})
 
 
 @router.delete("/case")
-async def delete_case(id_ca: int, payload: dict = Depends(token.check),
+async def delete_case(id_ca: int,
                       session: AsyncSession = Depends(db_session.get_async_session)):
     await session.execute(delete(CaseModel).where(CaseModel.id_ca == id_ca))
     await session.commit()
