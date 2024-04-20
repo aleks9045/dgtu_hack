@@ -69,11 +69,11 @@ async def get_all_invites_by_team(id_t: int, payload: dict = Depends(token.check
 
 
 @router.delete("/invite_accept")
-async def invite_accept(schema: AddUserSchema, payload: dict = Depends(token.check),
+async def invite_accept(id_u: int, payload: dict = Depends(token.check),
                         session: AsyncSession = Depends(db_session.get_async_session)):
-    stmt = update(UserModel).where(UserModel.id_u == schema["id_u"]).values(team=schema["id_t"])
+    stmt = update(UserModel).where(UserModel.id_u == id_u).values(team=id_u)
     await session.execute(stmt)
-    stmt = delete(InviteModel).where(InviteModel.user == schema["id_u"])
+    stmt = delete(InviteModel).where(InviteModel.user == id_u)
     await session.execute(stmt)
     await session.commit()
     return JSONResponse(status_code=200, content={"detail": "Пользователь был успешно добавлен."})
@@ -85,4 +85,4 @@ async def invite_refuse(id_u: int, id_t: int,
     stmt = delete(InviteModel).where(InviteModel.user == id_u, InviteModel.team == id_t)
     await session.execute(stmt)
     await session.commit()
-    return JSONResponse(status_code=200, content={"detail": "Пользователь был успешно удалён."})
+    return JSONResponse(status_code=200, content={"detail": ""})
