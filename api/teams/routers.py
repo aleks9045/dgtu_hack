@@ -91,10 +91,13 @@ async def patch_banner(id_t: int, payload: dict = Depends(token.check), photo: U
         async with aiofiles.open(file_path, 'wb') as out_file:
             content = photo.file.read()
             await out_file.write(content)
+        print("aaaaaaa")
         stmt = update(TeamModel).where(TeamModel.id_t == id_t).values(banner=file_path)
         await session.execute(statement=stmt)
         await session.commit()
-    except Exception:
+        print("fffffffff")
+    except Exception as e:
+        print(e)
         raise HTTPException(status_code=400, detail="Произошла неизвестная ошибка.")
 
     return JSONResponse(status_code=200, content={"detail": "Успешно."})

@@ -8,9 +8,8 @@ services:
     ports:
       - "8000:8000"
     command:
-#      /bin/sh -c "celery -A api.teams.tasks:celery worker --loglevel=INFO &&
-#      -с
-       python3 main.py
+#      sh -c "celery -A api.teams.tasks:celery worker --loglevel=INFO &&
+      python3 main.py
 #      First launch
 #      /bin/sh -c "sleep 1 &&
 #      alembic revision --autogenerate -m "initial" &&
