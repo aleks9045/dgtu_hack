@@ -67,6 +67,7 @@ async def patch_team(schema: TeamPatchSchema, payload: dict = Depends(token.chec
         TeamModel.name, TeamModel.about).where(
         TeamModel.id_t == schema["id_t"]))
     result = result.fetchone()
+    print(schema)
     for count, i in enumerate(schema.keys()):
         if schema[i] is None:
             schema[i] = result[count - 1]
