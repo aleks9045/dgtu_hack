@@ -11,6 +11,7 @@ from database import db_session
 from api.teams.models import JobModel, TeamModel, TeamLeadModel
 from api.auth.models import ExpertModel
 from api.auth.models import UserModel
+from api.admin.models import AdminModel
 # from api.chat.models import ChatModel
 Base = db_session.base
 

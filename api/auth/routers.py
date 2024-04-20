@@ -157,7 +157,6 @@ async def patch_user(schema: UserPatchSchema, payload: dict = Depends(token.chec
             pass
         if password.verify(schema["password"], result[3]):
             raise HTTPException(status_code=400, detail="Пароли совпадают")
-    print(schema["password"])
     stmt = update(UserModel).where(UserModel.id_u == int(payload["sub"])).values(
         first_name=schema['first_name'],
         last_name=schema['last_name'],
@@ -170,7 +169,7 @@ async def patch_user(schema: UserPatchSchema, payload: dict = Depends(token.chec
     return JSONResponse(status_code=200, content={"detail": "Успешно."})
 
 
-@router.patch('/photo', summary="Update user's photo")
+@router.patch('/photo', summary="Change user's photo")
 async def patch_photo(payload: dict = Depends(token.check), photo: UploadFile = File(...),
                       session: AsyncSession = Depends(db_session.get_async_session)):
     id_ = int(payload["sub"])

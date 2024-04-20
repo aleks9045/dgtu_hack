@@ -1,4 +1,7 @@
-from fastapi import Depends, HTTPException
+import os
+
+import aiofiles
+from fastapi import Depends, HTTPException, UploadFile, File
 from fastapi.routing import APIRouter
 from fastapi.responses import JSONResponse
 
@@ -40,12 +43,12 @@ async def get_team_by_user(id_u: int, payload: dict = Depends(token.check),
     team = result.fetchone()
     if team[0] is None:
         result = await session.execute(select(TeamLeadModel.team).where(TeamLeadModel.user == id_u))
-        team = result.fetchone()[0]
+        team = result.fetchone()
         if team is None:
             return JSONResponse(status_code=200, content={"detail": ""})
 
     result = await session.execute(
-        select(TeamModel.id_t, TeamModel.name, TeamModel.about,TeamModel.banner).where(TeamModel.id_t == team))
+        select(TeamModel.id_t, TeamModel.name, TeamModel.about,TeamModel.banner).where(TeamModel.id_t == team[0]))
     team_user = result.fetchone()
     return JSONResponse(status_code=200, content={"id_t": team_user[0],
                                                   "name": team_user[1],
@@ -70,6 +73,29 @@ async def patch_team(schema: TeamPatchSchema, payload: dict = Depends(token.chec
     )
     await session.execute(stmt)
     await session.commit()
+    return JSONResponse(status_code=200, content={"detail": "Успешно."})
+
+
+@router.patch('/banner', summary="Change team's photo")
+async def patch_photo(id_t: int, payload: dict = Depends(token.check), photo: UploadFile = File(...),
+                      session: AsyncSession = Depends(db_session.get_async_session)):
+    id_ = int(payload["sub"])
+    query = select(UserModel.photo).where(UserModel.id_u == id_)
+    result = await session.execute(query)
+    result = result.scalars().all()
+    if result[0] != photo.filename and result[0] != "media/user_photo/default.png":
+        os.remove(result[0])
+    try:
+        file_path = f'media/user_photo/{photo.filename}'
+        async with aiofiles.open(file_path, 'wb') as out_file:
+            content = photo.file.read()
+            await out_file.write(content)
+        stmt = update(UserModel).where(UserModel.id_u == id_).values(photo=file_path)
+        await session.execute(statement=stmt)
+        await session.commit()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Произошла неизвестная ошибка.")
+
     return JSONResponse(status_code=200, content={"detail": "Успешно."})
 
 
