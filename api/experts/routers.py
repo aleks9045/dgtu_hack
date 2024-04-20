@@ -64,11 +64,9 @@ async def login(schema: ExpertLoginSchema,
             status_code=400,
             detail="Неверно введена почта или пароль."
         )
-    result = await session.execute(select(ExpertModel.id_e).where(ExpertModel.email == schema["email"]))
-    user_id = result.scalars().all()[0]
     return JSONResponse(status_code=201, content={
-        "access_token": token.create(user_id, type_="access"),
-        "refresh_token": token.create(user_id, type_="refresh")
+        "access_token": token.create(schema["email"], type_="access"),
+        "refresh_token": token.create(schema["email"], type_="refresh")
     })
 
 @router.get('/expert', summary="Get information about user")
@@ -83,7 +81,7 @@ async def get_user(payload: dict = Depends(token.check),
         ExpertModel.role,
         ExpertModel.company,
         ExpertModel.photo).where(
-        ExpertModel.id_e == int(payload["sub"]))
+        ExpertModel.email == payload["sub"])
     result = await session.execute(query)
     try:
         result = result.fetchone()
@@ -100,6 +98,16 @@ async def get_user(payload: dict = Depends(token.check),
                                                   "photo": result[7]})
 
 @router.get('/company', summary="Get information about company")
+async def get_user(id_co: int,
+                   session: AsyncSession = Depends(db_session.get_async_session)):
+    result = await session.execute(select(CompanyModel.id_co, CompanyModel.name, CompanyModel.case).where(CompanyModel.id_co == id_co))
+    result = result.fetchone()
+    return JSONResponse(status_code=200, content={"id_co": result[0],
+                                                  "name": result[1],
+                                                  "case": result[2]
+                                                  })
+
+@router.post('/case', summary="Add case")
 async def get_user(id_co: int,
                    session: AsyncSession = Depends(db_session.get_async_session)):
     result = await session.execute(select(CompanyModel.id_co, CompanyModel.name, CompanyModel.case).where(CompanyModel.id_co == id_co))

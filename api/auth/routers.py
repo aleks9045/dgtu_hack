@@ -64,18 +64,16 @@ async def login(schema: UserLoginSchema,
             status_code=400,
             detail="Неверно введена почта или пароль."
         )
-    result = await session.execute(select(UserModel.id_u).where(UserModel.email == schema["email"]))
-    user_id = result.scalars().all()[0]
     return JSONResponse(status_code=201, content={
-        "access_token": token.create(user_id, type_="access"),
-        "refresh_token": token.create(user_id, type_="refresh")
+        "access_token": token.create(schema["email"], type_="access"),
+        "refresh_token": token.create(schema["email"], type_="refresh")
     })
 
 
 @router.get('/refresh', summary="Update access and refresh tokens")
 async def get_new_tokens(payload: dict = Depends(token.check),
                          session: AsyncSession = Depends(db_session.get_async_session)):
-    query = select(UserModel.id_u).where(UserModel.id_u == int(payload["sub"]))
+    query = select(UserModel.id_u).where(UserModel.email == payload["sub"])
     result = await session.execute(query)
     result = result.all()
     if not result:
@@ -103,7 +101,7 @@ async def get_user(payload: dict = Depends(token.check),
         UserModel.role,
         UserModel.about,
         UserModel.photo).where(
-        UserModel.id_u == int(payload["sub"]))
+        UserModel.email == payload["sub"])
     result = await session.execute(query)
     try:
         result = result.fetchone()
@@ -123,12 +121,12 @@ async def get_user(payload: dict = Depends(token.check),
 @router.delete('/user', summary="Delete user")
 async def delete_user(payload: dict = Depends(token.check),
                       session: AsyncSession = Depends(db_session.get_async_session)):
-    query = select(UserModel.photo).where(UserModel.id_u == int(payload["sub"]))
+    query = select(UserModel.photo).where(UserModel.email == payload["sub"])
     result = await session.execute(query)
     result = result.scalars().all()
     os.remove(result[0])
 
-    stmt = delete(UserModel).where(UserModel.id_u == int(payload["sub"]))
+    stmt = delete(UserModel).where(UserModel.email == payload["sub"])
     await session.execute(stmt)
     await session.commit()
 
@@ -147,7 +145,7 @@ async def patch_user(schema: UserPatchSchema, payload: dict = Depends(token.chec
         UserModel.hashed_password,
         UserModel.role,
         UserModel.about).where(
-        UserModel.id_u == int(payload["sub"])))
+        UserModel.email == payload["sub"]))
     result = result.fetchone()
     passw_is_none = False
     for count, i in enumerate(schema.keys()):
@@ -160,7 +158,7 @@ async def patch_user(schema: UserPatchSchema, payload: dict = Depends(token.chec
             pass
         if password.verify(schema["password"], result[3]):
             raise HTTPException(status_code=400, detail="Пароли совпадают")
-    stmt = update(UserModel).where(UserModel.id_u == int(payload["sub"])).values(
+    stmt = update(UserModel).where(UserModel.email == payload["sub"]).values(
         first_name=schema['first_name'],
         last_name=schema['last_name'],
         father_name=schema['father_name'],

@@ -14,3 +14,7 @@ class ExpertCreateSchema(BaseModel):
 class ExpertLoginSchema(BaseModel):
     email: str = Field(title="user's email")
     password: str = Field(title="user's password")
+
+class AddCaseSchema(BaseModel):
+    name: str = Field()
+    about: str = Field()
