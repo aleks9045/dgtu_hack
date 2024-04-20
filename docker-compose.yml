@@ -47,16 +47,16 @@ services:
 #      timeout: 2s
 #      retries: 2
     restart: always
-  redis:
-    image: redis:7.2.4-alpine
-    container_name: redis
-    restart: always
-    ports:
-      - "6379:6379"
+#  redis:
+#    image: redis:7.2.4-alpine
+#    container_name: redis
+#    restart: always
+#    ports:
+#      - "6379:6379"
+#    env_file:
+#      - .env
 #    volumes:
 #      - redis_data:/root/redis
-    env_file:
-      - .env
 #  celery:
 #    container_name: celery
 #    build: .

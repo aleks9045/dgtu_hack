@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.auth.utils import password, token
 from api.experts.models import ExpertModel, CompanyModel, CaseModel
-from api.experts.schemas import ExpertLoginSchema, ExpertCreateSchema, AddCaseSchema, AddCaseFileSchema
+from api.experts.schemas import ExpertLoginSchema, ExpertCreateSchema, AddCase, AddCaseFileSchema
 from database import db_session
 
 router = APIRouter(
@@ -141,7 +141,7 @@ async def get_company(id_co: int,
 
 
 @router.post('/case', summary="Add case")
-async def add_case(schema: AddCaseSchema, payload: dict = Depends(token.check),
+async def add_case(schema: AddCase, payload: dict = Depends(token.check),
                    session: AsyncSession = Depends(db_session.get_async_session)):
     print(schema["name"])
     print(schema)
