@@ -45,10 +45,19 @@ services:
 #      timeout: 2s
 #      retries: 2
     restart: always
-
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/root/redis
+    env_file:
+      - .env
 volumes:
   media:
   pgdata:
+  redis_data:
 
 networks:
   default:

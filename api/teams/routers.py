@@ -4,6 +4,7 @@ import aiofiles
 from fastapi import Depends, HTTPException, UploadFile, File
 from fastapi.routing import APIRouter
 from fastapi.responses import JSONResponse
+from api.teams.tasks import send_notification
 
 from api.auth.models import UserModel
 from api.teams.models import TeamModel, TeamLeadModel
@@ -177,4 +178,13 @@ async def delete_team(id_u: int, payload: dict = Depends(token.check),
         return JSONResponse(status_code=200, content={"detail": "Данный пользователь не является тимлидом"})
     await session.execute(delete(TeamModel).where(TeamModel.id_t == team[0]))
     await session.commit()
+    return JSONResponse(status_code=200, content={"detail": "Успешно."})
+
+@router.get("/send_notification")
+async def send(id_u: int, payload: dict = Depends(token.check),
+                      session: AsyncSession = Depends(db_session.get_async_session)):
+    result = await session.execute(
+        select(UserModel.email).where(UserModel.id_u == id_u))
+    email = result.fetchone()[0]
+    send_notification(email)
     return JSONResponse(status_code=200, content={"detail": "Успешно."})

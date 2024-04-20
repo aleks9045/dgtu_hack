@@ -22,6 +22,3 @@ class JobModel(Base):
     __tablename__ = "job"
     id_j = Column(SmallInteger, primary_key=True, autoincrement=True)
     # case = Column(SmallInteger, ForeignKey(''), nullable=False)
-
-# class NotificationModel(Base):
-#     pass

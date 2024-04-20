@@ -174,7 +174,6 @@ async def patch_user(schema: UserPatchSchema, payload: dict = Depends(token.chec
 async def patch_photo(payload: dict = Depends(token.check), photo: UploadFile = File(...),
                       session: AsyncSession = Depends(db_session.get_async_session)):
     id_ = int(payload["sub"])
-    print(id_)
     query = select(UserModel.photo).where(UserModel.id_u == id_)
     result = await session.execute(query)
     result = result.scalars().all()
