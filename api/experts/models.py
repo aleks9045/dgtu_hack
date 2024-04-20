@@ -11,10 +11,10 @@ class ExpertModel(Base):
     father_name = Column(VARCHAR(32), nullable=True)
     email = Column(VARCHAR(64), nullable=False, unique=True)
     role = Column(VARCHAR(32), nullable=False)
-    company = Column(VARCHAR(32), nullable=True)
     hashed_password = Column(VARCHAR(1023), nullable=False)
     photo = Column(VARCHAR(255), nullable=True)
-    case = Column(SmallInteger, ForeignKey('case.id_c'), nullable=True)
+    company = Column(SmallInteger, ForeignKey('case.id_c'), nullable=False)
+
 
 
 class MarkModel(Base):
@@ -32,6 +32,12 @@ class MarkModel(Base):
 
 class CaseModel(Base):
     __tablename__ = "case"
-    id_c = Column(SmallInteger, primary_key=True, autoincrement=True)
+    id_ca = Column(SmallInteger, primary_key=True, autoincrement=True)
     name = Column(VARCHAR(64), nullable=False, unique=True)
     about = Column(VARCHAR(255), nullable=True)
+
+class CompanyModel(Base):
+    __tablename__ = "company"
+    id_co = Column(SmallInteger, primary_key=True, autoincrement=True)
+    name = Column(VARCHAR(32), nullable=False)
+    case = Column(SmallInteger, ForeignKey('case.id_ca'), nullable=True)
