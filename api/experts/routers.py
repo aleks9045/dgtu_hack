@@ -175,7 +175,8 @@ async def patch_file(id_ca: int, payload: dict = Depends(token.check), photo: Up
         stmt = update(CaseModel).where(CaseModel.id_ca == id_ca).values(file=file_path)
         await session.execute(statement=stmt)
         await session.commit()
-    except Exception:
+    except Exception as e:
+        print(e)
         raise HTTPException(status_code=400, detail="Произошла неизвестная ошибка.")
     return JSONResponse(status_code=200, content={"detail": "Успешно."})
 
