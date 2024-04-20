@@ -167,11 +167,6 @@ async def delete_case(id_ca: int,
 @router.patch('/file', summary="Change case's file")
 async def patch_file(id_ca: int, payload: dict = Depends(token.check), photo: UploadFile = File(...),
                       session: AsyncSession = Depends(db_session.get_async_session)):
-    result = await session.execute(select(CaseModel.file).where(CaseModel.id_ca == id_ca))
-    result = result.scalars().all()
-    if result[0] != photo.filename:
-        print("aAAAAAAAAAAAAAAAAAAAAAa")
-        await os.remove(result[0])
     try:
         file_path = f'media/case_files/{photo.filename}'
         async with aiofiles.open(file_path, 'wb') as out_file:
