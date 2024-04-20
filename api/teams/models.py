@@ -23,4 +23,5 @@ class JobModel(Base):
     id_j = Column(SmallInteger, primary_key=True, autoincrement=True)
     # case = Column(SmallInteger, ForeignKey(''), nullable=False)
 
-class NotificationModel
+class NotificationModel(Base):
+    pass
