@@ -18,7 +18,7 @@ from database import db_session
 
 router = APIRouter(
     prefix="/invites",
-    tags=["Teams"]
+    tags=["Invites"]
 )
 
 @router.post("/invite")
