@@ -107,7 +107,7 @@ async def get_user(payload: dict = Depends(token.check),
     result = await session.execute(query)
     try:
         result = result.fetchone()
-    except IndexError:
+    except Exception:
         raise HTTPException(status_code=404, detail="Пользователь не найден.")
     return JSONResponse(status_code=200, content={"id_u": result[0],
                                                   "first_name": result[1],
