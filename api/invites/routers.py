@@ -45,7 +45,7 @@ async def get_all_invites_by_user(id_u: int, payload: dict = Depends(token.check
         print(team_user)
         res_dict.append({"id_i": i[0],
                          "id_u": i[1],
-                         "team": team_user[0]})
+                         "team": [j for j in team_user]})
     return JSONResponse(status_code=200, content=res_dict)
 
 @router.get("/invite_by_team")
