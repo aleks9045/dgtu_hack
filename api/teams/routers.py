@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse
 from api.teams.tasks import send_notification_add, send_notification_delete
 
 from api.auth.models import UserModel
-from api.teams.models import TeamModel, TeamLeadModel
+from api.teams.models import TeamModel, TeamLeadModel, InviteModel
 from api.teams.schemas import TeamCreateSchema, AddUserSchema, TeamPatchSchema
 from sqlalchemy import insert, select, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -119,15 +119,57 @@ async def delete_banner(id_t: int, payload: dict = Depends(token.check),
     return JSONResponse(status_code=200, content={"detail": "Успешно."})
 
 
-@router.post("/user")
-async def add_user_to_team(schema: AddUserSchema, payload: dict = Depends(token.check),
+@router.post("/invite")
+async def add_invite(schema: AddUserSchema, payload: dict = Depends(token.check),
                            session: AsyncSession = Depends(db_session.get_async_session)):
     schema = schema.model_dump()
-    stmt = update(UserModel).where(UserModel.id_u == schema['id_u']).values(team=schema['id_t'])
+    stmt = insert(InviteModel).values(user=schema['id_u'], team=schema["id_t"])
     await session.execute(stmt)
     await session.commit()
-    return JSONResponse(status_code=200, content={"detail": "Пользователь был успешно добавлен."})
+    return JSONResponse(status_code=200, content={"detail": "Пользователь был успешно приглашен."})
 
+@router.get("/invite_by_user")
+async def get_all_invites_by_user(id_u: int, payload: dict = Depends(token.check),
+                           session: AsyncSession = Depends(db_session.get_async_session)):
+    res_dict = []
+    result = await session.execute(select(InviteModel.id_i, InviteModel.user, InviteModel.team).where(InviteModel.user == id_u))
+    invite = result.fetchall()
+    for i in invite:
+        res_dict.append({"id_i": i[0],
+                         "id_u": i[1],
+                         "id_t": i[2]})
+    return JSONResponse(status_code=200, content=res_dict)
+
+@router.get("/invite_by_team")
+async def get_all_invites_by_team(id_t: int, payload: dict = Depends(token.check),
+                           session: AsyncSession = Depends(db_session.get_async_session)):
+    res_dict = []
+    result = await session.execute(
+        select(InviteModel.id_i, InviteModel.user, InviteModel.team).where(InviteModel.team == id_t))
+    invite = result.fetchall()
+    for i in invite:
+        res_dict.append({"id_i": i[0],
+                         "id_u": i[1],
+                         "id_t": i[2]})
+    return JSONResponse(status_code=200, content=res_dict)
+
+@router.delete("/invite_accept")
+async def invite_accept(schema: AddUserSchema, payload: dict = Depends(token.check),
+                                session: AsyncSession = Depends(db_session.get_async_session)):
+    stmt = update(UserModel).where(UserModel.id_u == schema["id_u"]).values(team=schema["id_t"])
+    await session.execute(stmt)
+    stmt = delete(InviteModel).where(InviteModel.user == schema["id_u"])
+    await session.execute(stmt)
+    await session.commit()
+    return JSONResponse(status_code=200, content={"detail": "Пользователь был успешно Добавлен."})
+
+@router.delete("/invite_refuse")
+async def invite_refuse(schema: AddUserSchema, payload: dict = Depends(token.check),
+                                session: AsyncSession = Depends(db_session.get_async_session)):
+    stmt = delete(InviteModel).where(InviteModel.user == schema["id_u"], InviteModel.team == schema["id_t"])
+    await session.execute(stmt)
+    await session.commit()
+    return JSONResponse(status_code=200, content={"detail": "Пользователь был успешно удалён."})
 
 @router.delete("/user")
 async def delete_user_from_team(id_u: int, payload: dict = Depends(token.check),

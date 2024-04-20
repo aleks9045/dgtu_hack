@@ -11,7 +11,7 @@ class UserModel(Base):
     first_name = Column(VARCHAR(32), nullable=False)
     last_name = Column(VARCHAR(32), nullable=False)
     father_name = Column(VARCHAR(32), nullable=True)
-    email = Column(VARCHAR(32), nullable=False, unique=True)
+    email = Column(VARCHAR(64), nullable=False, unique=True)
     role = Column(VARCHAR(32), nullable=False)
     about = Column(VARCHAR(255), nullable=True)
     hashed_password = Column(VARCHAR(1023), nullable=False)

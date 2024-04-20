@@ -28,9 +28,9 @@ app.add_middleware(
 )  # Побеждаем политику CORS
 
 app.include_router(api_auth_router)
-# app.include_router(pages_auth_router)
 app.include_router(api_teams_router)
 app.include_router(api_admin_router)
+# app.include_router(pages_auth_router)
 # app.include_router(api_chat_router)
 
 app.mount("/media", StaticFiles(directory="media"), name="media")
