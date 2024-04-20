@@ -9,7 +9,7 @@ class TeamModel(Base):
     name = Column(VARCHAR(32), nullable=False, unique=True)
     job = Column(SmallInteger, ForeignKey('job.id_j'), nullable=True)
     about = Column(VARCHAR(255), nullable=True)
-    banner = Column(VARCHAR(64), nullable=True)
+    banner = Column(VARCHAR(255), nullable=True)
 
 
 class TeamLeadModel(Base):
