@@ -169,7 +169,8 @@ async def patch_file(id_ca: int, payload: dict = Depends(token.check), photo: Up
                       session: AsyncSession = Depends(db_session.get_async_session)):
     result = await session.execute(select(CaseModel.file).where(CaseModel.id_ca == id_ca))
     result = result.scalars().all()
-    if result[0] != photo.filename and result[0] != "media/case_files/default.png":
+    if result[0] != photo.filename:
+        print("aAAAAAAAAAAAAAAAAAAAAAa")
         await os.remove(result[0])
     try:
         file_path = f'media/case_files/{photo.filename}'

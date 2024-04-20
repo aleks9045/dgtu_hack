@@ -23,5 +23,19 @@ function connect(event) {
 }
 
 window.onload = function() {
-  // код для выполнения после загрузки всей страницы
+        const token = document.getElementById('username').value
+        console.log(token)
+        fetch('http://localhost:8000/auth/user', {
+            method: 'GET',
+            headers: {
+                'Content-type': 'application/json; charset=UTF-8',
+                'Authorization': `Selezenka ${token}`
+            },
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                const name = data.name
+                console.log(name)
+                localStorage.setItem('name', name)
+            })
 }
