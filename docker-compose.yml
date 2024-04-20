@@ -9,12 +9,12 @@ services:
     ports:
       - "8000:8000"
     command:
-#       python3 main.py
+       python3 main.py
 #      First launch
-      /bin/sh -c "sleep 1 &&
-      alembic revision --autogenerate -m "initial" &&
-      alembic upgrade head &&
-      python3 main.py"
+#      /bin/sh -c "sleep 1 &&
+#      alembic revision --autogenerate -m "initial" &&
+#      alembic upgrade head &&
+#      python3 main.py"
     volumes:
       - user_photo:/app/media/user_photo
       - teams_banner:/app/media/teams_banner
