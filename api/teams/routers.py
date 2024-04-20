@@ -57,7 +57,7 @@ async def get_team_by_user(id_u: int, payload: dict = Depends(token.check),
     return JSONResponse(status_code=200, content={"id_t": team_user[0],
                                                   "name": team_user[1],
                                                   "about": team_user[2],
-                                                  "banner": team_user[3], })
+                                                  "banner": team_user[3]})
 
 
 @router.patch("/team")
