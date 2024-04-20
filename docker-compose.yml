@@ -16,7 +16,8 @@ services:
 #      alembic upgrade head &&
 #      python3 main.py"
     volumes:
-      - media:/app/media
+      - user_photo:/app/media/user_photo
+      - teams_banner:/app/media/teams_banner
     networks:
       - default
   postgres:
@@ -73,7 +74,8 @@ services:
     ports:
       - "5555:5555"
 volumes:
-  media:
+  user_photo:
+  teams_banner:
   pgdata:
 #  redis_data:
 
