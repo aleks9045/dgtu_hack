@@ -87,6 +87,7 @@ async def patch_banner(id_t: int, payload: dict = Depends(token.check), photo: U
     if result[0] != photo.filename and result[0] != "media/teams_banner/default.png":
         os.remove(result[0])
     try:
+        print("СШШШШШШЫЫВШШВЫШВЫ")
         file_path = f'media/teams_banner/{photo.filename}'
         async with aiofiles.open(file_path, 'wb') as out_file:
             content = photo.file.read()
