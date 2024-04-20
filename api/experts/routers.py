@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.auth.utils import password, token
 from api.experts.models import ExpertModel, CompanyModel, CaseModel
-from api.experts.schemas import ExpertLoginSchema, ExpertCreateSchema, AddCase, AddCaseFileSchema
+from api.experts.schemas import ExpertLoginSchema, ExpertCreateSchema, AddCaseSchema, AddCaseFileSchema
 from database import db_session
 
 router = APIRouter(
@@ -141,11 +141,9 @@ async def get_company(id_co: int,
 
 
 @router.post('/case', summary="Add case")
-async def add_case(schema: AddCase, payload: dict = Depends(token.check),
+async def add_case(schema: AddCaseSchema, payload: dict = Depends(token.check),
                    session: AsyncSession = Depends(db_session.get_async_session)):
-    print(schema["name"])
-    print(schema)
-    print(schema)
+    schema = schema.model_dump()
     stmt = insert(CaseModel).values(
         name=schema["name"],
         about=schema["about"],
@@ -166,6 +164,7 @@ async def delete_case(id_ca: int, payload: dict = Depends(token.check),
 @router.patch('/file', summary="Change case's file")
 async def patch_file(schema: AddCaseFileSchema, payload: dict = Depends(token.check), photo: UploadFile = File(...),
                       session: AsyncSession = Depends(db_session.get_async_session)):
+    schema = schema.model_dump()
     result = await session.execute(select(CaseModel.file).where(CaseModel.id_ca == schema["id_ca"]))
     result = result.scalars().all()
     if result[0] != photo.filename and result[0] != "media/case_files/default.png":
