@@ -221,6 +221,7 @@ async def all_teams(session: AsyncSession = Depends(db_session.get_async_session
 async def add_job(schema: AddJobSchema, payload: dict = Depends(token.check),
                   session: AsyncSession = Depends(db_session.get_async_session)):
     schema = schema.model_dump()
+    print(schema)
     stmt = insert(JobModel).values(
         github=schema['github'])
     await session.execute(statement=stmt)
