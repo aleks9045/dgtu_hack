@@ -1,4 +1,4 @@
-import os
+from aiofiles import os
 
 import aiofiles
 from fastapi import Depends, HTTPException, UploadFile, File
@@ -223,10 +223,7 @@ async def all_teams(session: AsyncSession = Depends(db_session.get_async_session
 async def add_job(schema: AddJobSchema, payload: dict = Depends(token.check),
                   session: AsyncSession = Depends(db_session.get_async_session)):
     stmt = insert(JobModel).values(
-        name=schema['name'],
-        about=schema['about'],
-        company=schema['id_co'],
-        file="media/case_files/default.png")
+        github=schema['github'])
     await session.execute(statement=stmt)
     await session.commit()
-    return JSONResponse(status_code=200, content={"detail": "Кейс успешно добавлен."})
+    return JSONResponse(status_code=200, content={"detail": "Работа успешно добавлена."})

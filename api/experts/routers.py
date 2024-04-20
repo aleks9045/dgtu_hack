@@ -1,7 +1,9 @@
-from fastapi import Depends, HTTPException
+import aiofiles
+from aiofiles import os
+from fastapi import Depends, HTTPException, UploadFile, File
 from fastapi.responses import JSONResponse
 from fastapi.routing import APIRouter
-from sqlalchemy import insert, select, delete
+from sqlalchemy import insert, select, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.auth.utils import password, token
@@ -94,14 +96,36 @@ async def get_expert(payload: dict = Depends(token.check),
                                                   "company": result[6],
                                                   "photo": result[7]})
 
+@router.patch('/photo', summary="Change expert's photo")
+async def patch_photo(payload: dict = Depends(token.check), photo: UploadFile = File(...),
+                      session: AsyncSession = Depends(db_session.get_async_session)):
+    query = select(ExpertModel.photo).where(ExpertModel.email == payload["sub"])
+    result = await session.execute(query)
+    result = result.scalars().all()
+    if result[0] != photo.filename and result[0] != "media/user_photo/default.png":
+        await os.remove(result[0])
+    try:
+        file_path = f'media/user_photo/{photo.filename}'
+        async with aiofiles.open(file_path, 'wb') as out_file:
+            content = photo.file.read()
+            await out_file.write(content)
+        stmt = update(ExpertModel).where(ExpertModel.email == payload["sub"]).values(photo=file_path)
+        await session.execute(statement=stmt)
+        await session.commit()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Произошла неизвестная ошибка.")
+
+    return JSONResponse(status_code=200, content={"detail": "Успешно."})
+
+
 
 @router.get('/company', summary="Get information about company")
 async def get_company(id_co: int,
                       session: AsyncSession = Depends(db_session.get_async_session)):
     result = await session.execute(
-        select(CompanyModel.id_co, CompanyModel.name, CompanyModel.case).where(CompanyModel.id_co == id_co))
+        select(CompanyModel.name).where(CompanyModel.id_co == id_co))
     result = result.fetchone()
-    return JSONResponse(status_code=200, content={"name": result[1]})
+    return JSONResponse(status_code=200, content={"name": result[0]})
 
 
 @router.post('/case', summary="Add case")

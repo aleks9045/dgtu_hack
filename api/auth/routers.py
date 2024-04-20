@@ -1,4 +1,4 @@
-import os
+from aiofiles import os
 
 import aiofiles
 from fastapi import UploadFile, Depends, HTTPException, Request, File
