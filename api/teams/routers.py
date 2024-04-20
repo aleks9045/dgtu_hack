@@ -48,12 +48,12 @@ async def get_team_by_user(id_u: int, payload: dict = Depends(token.check),
             return JSONResponse(status_code=200, content={"detail": ""})
 
     result = await session.execute(
-        select(TeamModel.id_t, TeamModel.name, TeamModel.about,TeamModel.banner).where(TeamModel.id_t == team[0]))
+        select(TeamModel.id_t, TeamModel.name, TeamModel.about, TeamModel.banner).where(TeamModel.id_t == team[0]))
     team_user = result.fetchone()
     return JSONResponse(status_code=200, content={"id_t": team_user[0],
                                                   "name": team_user[1],
                                                   "about": team_user[2],
-                                                  "banner": team_user[1],})
+                                                  "banner": team_user[3], })
 
 
 @router.patch("/team")
@@ -76,21 +76,37 @@ async def patch_team(schema: TeamPatchSchema, payload: dict = Depends(token.chec
     return JSONResponse(status_code=200, content={"detail": "Успешно."})
 
 
-@router.patch('/banner', summary="Change team's photo")
-async def patch_photo(id_t: int, payload: dict = Depends(token.check), photo: UploadFile = File(...),
-                      session: AsyncSession = Depends(db_session.get_async_session)):
-    id_ = int(payload["sub"])
-    query = select(UserModel.photo).where(UserModel.id_u == id_)
-    result = await session.execute(query)
+@router.patch('/banner', summary="Change team's banner")
+async def patch_banner(id_t: int, payload: dict = Depends(token.check), photo: UploadFile = File(...),
+                       session: AsyncSession = Depends(db_session.get_async_session)):
+    result = await session.execute(select(TeamModel.banner).where(TeamModel.id_t == id_t))
     result = result.scalars().all()
-    if result[0] != photo.filename and result[0] != "media/user_photo/default.png":
+    if result[0] != photo.filename and result[0] != "media/teams_banner/default.png":
         os.remove(result[0])
     try:
-        file_path = f'media/user_photo/{photo.filename}'
+        file_path = f'media/teams_banner/{photo.filename}'
         async with aiofiles.open(file_path, 'wb') as out_file:
             content = photo.file.read()
             await out_file.write(content)
-        stmt = update(UserModel).where(UserModel.id_u == id_).values(photo=file_path)
+        stmt = update(TeamModel).where(TeamModel.id_t == id_t).values(banner=file_path)
+        await session.execute(statement=stmt)
+        await session.commit()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Произошла неизвестная ошибка.")
+
+    return JSONResponse(status_code=200, content={"detail": "Успешно."})
+
+
+@router.delete('/banner', summary="Delete teams's banner")
+async def delete_banner(id_t: int, payload: dict = Depends(token.check),
+                        session: AsyncSession = Depends(db_session.get_async_session)):
+    try:
+        id_ = int(payload["sub"])
+        query = select(TeamModel.banner).where(TeamModel.id_t == id_t)
+        result = await session.execute(query)
+        result = result.scalars().all()
+        os.remove(result[0])
+        stmt = update(UserModel).where(UserModel.id_u == id_).values(photo="media/teams_banner/default.png")
         await session.execute(statement=stmt)
         await session.commit()
     except Exception:
@@ -110,8 +126,8 @@ async def add_user_to_team(schema: AddUserSchema, payload: dict = Depends(token.
 
 
 @router.delete("/user")
-async def add_user_to_team(id_u: int, payload: dict = Depends(token.check),
-                           session: AsyncSession = Depends(db_session.get_async_session)):
+async def delete_user_from_team(id_u: int, payload: dict = Depends(token.check),
+                                session: AsyncSession = Depends(db_session.get_async_session)):
     stmt = update(UserModel).where(UserModel.id_u == id_u).values(team=None)
     await session.execute(stmt)
     await session.commit()
