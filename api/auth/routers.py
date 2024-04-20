@@ -142,10 +142,10 @@ async def patch_user(schema: UserPatchSchema, payload: dict = Depends(token.chec
         UserModel.first_name,
         UserModel.last_name,
         UserModel.father_name,
+        UserModel.email,
         UserModel.hashed_password,
         UserModel.role,
-        UserModel.about,
-        UserModel.email).where(
+        UserModel.about).where(
         UserModel.id_u == int(payload["sub"])))
     result = result.fetchone()
     passw_is_none = False
