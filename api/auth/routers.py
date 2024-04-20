@@ -144,7 +144,8 @@ async def patch_user(schema: UserPatchSchema, payload: dict = Depends(token.chec
         UserModel.father_name,
         UserModel.hashed_password,
         UserModel.role,
-        UserModel.about).where(
+        UserModel.about,
+        UserModel.email).where(
         UserModel.id_u == int(payload["sub"])))
     result = result.fetchone()
     passw_is_none = False
@@ -163,6 +164,7 @@ async def patch_user(schema: UserPatchSchema, payload: dict = Depends(token.chec
         last_name=schema['last_name'],
         father_name=schema['father_name'],
         role=schema['role'],
+        email=schema['email'],
         about=schema['about'],
         hashed_password=password.hash(schema["password"]))
     await session.execute(stmt)
