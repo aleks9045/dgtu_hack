@@ -3,7 +3,7 @@ services:
     container_name: backend
     depends_on:
       - postgres
-#      - celery
+      - celery
 #        condition: service_healthy
     build: .
     ports:
@@ -56,22 +56,22 @@ services:
 #      - redis_data:/root/redis
     env_file:
       - .env
-#  celery:
-#    container_name: celery
-#    build: .
-#    command:
-#      celery -A api.teams.tasks:celery worker --loglevel=INFO
-#    depends_on:
-#      - redis
-#  flower:
-#    container_name: flower
-#    build: .
-#    command:
-#      celery -A api.teams.tasks:celery flower
-#    depends_on:
-#      - celery
-#    ports:
-#      - "5555:5555"
+  celery:
+    container_name: celery
+    build: .
+    command:
+      celery -A api.teams.tasks:celery worker --loglevel=INFO
+    depends_on:
+      - redis
+  flower:
+    container_name: flower
+    build: .
+    command:
+      celery -A api.teams.tasks:celery flower
+    depends_on:
+      - celery
+    ports:
+      - "5555:5555"
 volumes:
   media:
   pgdata:
