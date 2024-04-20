@@ -25,7 +25,7 @@ async def create_user(schema: ExpertCreateSchema, payload: dict = Depends(token.
     schema = schema.model_dump()
     if password.check(schema["password"]):
         pass
-    query = select(ExpertModel.id_u).where(ExpertModel.email == schema["email"])
+    query = select(ExpertModel.id_e).where(ExpertModel.email == schema["email"])
     result = await session.execute(query)
     if result.scalars().all():
         raise HTTPException(status_code=400, detail="Пользователь уже существует.")
@@ -64,7 +64,7 @@ async def login(schema: ExpertLoginSchema,
             status_code=400,
             detail="Неверно введена почта или пароль."
         )
-    result = await session.execute(select(ExpertModel.id_u).where(ExpertModel.email == schema["email"]))
+    result = await session.execute(select(ExpertModel.id_e).where(ExpertModel.email == schema["email"]))
     user_id = result.scalars().all()[0]
     return JSONResponse(status_code=201, content={
         "access_token": token.create(user_id, type_="access"),
