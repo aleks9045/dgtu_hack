@@ -8,7 +8,7 @@ class ExpertCreateSchema(BaseModel):
     email: EmailStr = Field(title="user's email")
     password: str = Field(title="user's password")
     role: str = Field(title="user's role")
-    about: str = Field(title="about user")
+    company: str = Field(title="company")
 
 
 class ExpertLoginSchema(BaseModel):
