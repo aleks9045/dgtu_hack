@@ -19,8 +19,8 @@ router = APIRouter(
 )
 
 
-@router.post('/register', summary="Create new user")
-async def create_user(schema: ExpertCreateSchema, payload: dict = Depends(token.check),
+@router.post('/register', summary="Create new expert")
+async def create_expert(schema: ExpertCreateSchema, payload: dict = Depends(token.check),
                       session: AsyncSession = Depends(db_session.get_async_session)):
     schema = schema.model_dump()
     if password.check(schema["password"]):
@@ -70,8 +70,8 @@ async def login(schema: ExpertLoginSchema,
     })
 
 
-@router.get('/expert', summary="Get information about user")
-async def get_user(payload: dict = Depends(token.check),
+@router.get('/expert', summary="Get information about expert")
+async def get_expert(payload: dict = Depends(token.check),
                    session: AsyncSession = Depends(db_session.get_async_session)):
     query = select(
         ExpertModel.id_e,
@@ -100,7 +100,7 @@ async def get_user(payload: dict = Depends(token.check),
 
 
 @router.get('/company', summary="Get information about company")
-async def get_user(id_co: int,
+async def get_company(id_co: int,
                    session: AsyncSession = Depends(db_session.get_async_session)):
     result = await session.execute(
         select(CompanyModel.id_co, CompanyModel.name, CompanyModel.case).where(CompanyModel.id_co == id_co))
@@ -112,7 +112,7 @@ async def get_user(id_co: int,
 
 
 @router.post('/case', summary="Add case")
-async def get_user(schema: AddCaseSchema,
+async def add_case(schema: AddCaseSchema, payload: dict = Depends(token.check),
                    session: AsyncSession = Depends(db_session.get_async_session)):
     stmt = insert(CaseModel).values(
         name=schema['name'],
@@ -122,3 +122,25 @@ async def get_user(schema: AddCaseSchema,
     await session.execute(statement=stmt)
     await session.commit()
     return JSONResponse(status_code=200, content={"detail": "Кейс успешно добавлен."})
+
+@router.get("/case")
+async def delete_case(id_ca: int, payload: dict = Depends(token.check),
+                      session: AsyncSession = Depends(db_session.get_async_session)):
+    await session.execute(delete(CaseModel).where(CaseModel.id_ca == id_ca))
+    await session.commit()
+    return JSONResponse(status_code=200, content={"detail": "Успешно."})
+
+@router.get('/all_case', summary="Get all cases")
+async def all_case(session: AsyncSession = Depends(db_session.get_async_session)):
+    res_dict = []
+    result = await session.execute(
+        select(CaseModel.id_ca, CaseModel.name, CaseModel.about, CaseModel.file, CaseModel.company).where(1 == 1))
+    for i in result.all():
+        result = await session.execute(select(CompanyModel.name).where(CompanyModel.id_co == i[0]))
+        company_name = result.fetchone()[0]
+        res_dict.append({"id_ca": i[0],
+                         "name": i[1],
+                         "about": i[2],
+                         "file": i[3],
+                         "company": company_name})
+    return JSONResponse(status_code=200, content=res_dict)

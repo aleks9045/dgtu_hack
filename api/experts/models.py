@@ -26,9 +26,9 @@ class MarkModel(Base):
     frontend = Column(VARCHAR(32), nullable=True)
     realization = Column(VARCHAR(32), nullable=True)
     comment = Column(VARCHAR(255), nullable=True)
-    job = Column(SmallInteger, ForeignKey('job.id_j'), nullable=True)
-    expert = Column(SmallInteger, ForeignKey('expert.id_e'), nullable=True)
-    user = Column(SmallInteger, ForeignKey('user.id_u'), nullable=True)
+    job = Column(SmallInteger, ForeignKey('job.id_j', ondelete="CASCADE"), nullable=True)
+    expert = Column(SmallInteger, ForeignKey('expert.id_e', ondelete="CASCADE"), nullable=True)
+    user = Column(SmallInteger, ForeignKey('user.id_u', ondelete="CASCADE"), nullable=True)
 
 class CaseModel(Base):
     __tablename__ = "case"
@@ -36,7 +36,7 @@ class CaseModel(Base):
     name = Column(VARCHAR(64), nullable=False, unique=True)
     about = Column(VARCHAR(255), nullable=True)
     file = Column(VARCHAR(255), nullable=True)
-    company = Column(SmallInteger, ForeignKey('company.id_co'), nullable=True)
+    company = Column(SmallInteger, ForeignKey('company.id_co', ondelete="CASCADE"), nullable=True)
 
 class CompanyModel(Base):
     __tablename__ = "company"

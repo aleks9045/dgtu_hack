@@ -9,7 +9,7 @@ class TeamModel(Base):
     name = Column(VARCHAR(32), nullable=False, unique=True)
     about = Column(VARCHAR(255), nullable=True)
     banner = Column(VARCHAR(255), nullable=True)
-    job = Column(SmallInteger, ForeignKey('job.id_j'), nullable=True, unique=True)
+    job = Column(SmallInteger, ForeignKey('job.id_j', ondelete="SET NULL"), nullable=True, unique=True)
 
 
 class TeamLeadModel(Base):
@@ -23,4 +23,4 @@ class JobModel(Base):
     __tablename__ = "job"
     id_j = Column(SmallInteger, primary_key=True, autoincrement=True)
     github = Column(VARCHAR(255), nullable=False)
-    case = Column(SmallInteger, ForeignKey('case.id_ca'), nullable=False)
+    case = Column(SmallInteger, ForeignKey('case.id_ca', ondelete="CASCADE"), nullable=False)
