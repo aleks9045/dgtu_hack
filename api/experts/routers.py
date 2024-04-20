@@ -90,7 +90,7 @@ async def get_user(payload: dict = Depends(token.check),
         print(result[0])
     except Exception:
         raise HTTPException(status_code=404, detail="Пользователь не найден.")
-    return JSONResponse(status_code=200, content={"id_e": result[0],
+    return JSONResponse(status_code=200, content={"id": result[0],
                                                   "first_name": result[1],
                                                   "last_name": result[2],
                                                   "father_name": result[3],
