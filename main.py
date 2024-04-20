@@ -6,6 +6,7 @@ from starlette.staticfiles import StaticFiles
 from api.auth.routers import router as api_auth_router
 from api.teams.routers import router as api_teams_router
 from api.admin.routers import router as api_admin_router
+from api.invites.routers import router as api_intvites_router
 # from api.chat.routers import router as api_chat_router
 # from pages.auth.routers import router as pages_auth_router
 
@@ -30,6 +31,7 @@ app.add_middleware(
 app.include_router(api_auth_router)
 app.include_router(api_teams_router)
 app.include_router(api_admin_router)
+app.include_router(api_intvites_router)
 # app.include_router(pages_auth_router)
 # app.include_router(api_chat_router)
 
