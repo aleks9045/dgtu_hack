@@ -42,9 +42,10 @@ async def get_all_invites_by_user(id_u: int, payload: dict = Depends(token.check
         result = await session.execute(
             select(TeamModel.id_t, TeamModel.name, TeamModel.about, TeamModel.banner).where(TeamModel.id_t == i[2]))
         team_user = result.fetchone()
+        print(team_user)
         res_dict.append({"id_i": i[0],
                          "id_u": i[1],
-                         "team": team_user})
+                         "team": team_user[0]})
     return JSONResponse(status_code=200, content=res_dict)
 
 @router.get("/invite_by_team")
