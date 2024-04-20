@@ -119,6 +119,7 @@ async def delete_banner(id_t: int, payload: dict = Depends(token.check),
 
     return JSONResponse(status_code=200, content={"detail": "Успешно."})
 
+
 @router.delete("/user")
 async def delete_user_from_team(id_u: int, payload: dict = Depends(token.check),
                                 session: AsyncSession = Depends(db_session.get_async_session)):
@@ -136,29 +137,31 @@ async def get_all_users_from_team(id_t: int, payload: dict = Depends(token.check
         select(UserModel.id_u, UserModel.first_name, UserModel.last_name, UserModel.father_name,
                UserModel.email, UserModel.role, UserModel.about, UserModel.photo).where(UserModel.team == id_t))
     for i in result.all():
-        res_dict.append({"member": {"id": i[0],
-                                    "first_name": i[1],
-                                    "last_name": i[2],
-                                    "father_name": i[3],
-                                    "email": i[4],
-                                    "role": i[5],
-                                    "about": i[6],
-                                    "photo": i[7]}})
+        res_dict.append({"id": i[0],
+                         "first_name": i[1],
+                         "last_name": i[2],
+                         "father_name": i[3],
+                         "email": i[4],
+                         "role": i[5],
+                         "about": i[6],
+                         "photo": i[7],
+                         "type": "member"})
     result = await session.execute(select(TeamLeadModel.user).where(TeamLeadModel.team == id_t))
     teamlead_id = result.fetchone()[0]
     result = await session.execute(
         select(UserModel.id_u, UserModel.first_name, UserModel.last_name, UserModel.father_name,
                UserModel.email, UserModel.role, UserModel.about, UserModel.photo).where(UserModel.id_u == teamlead_id))
     for i in result.all():
-        res_dict.append({"teamlead": {"id": i[0],
-                                      "first_name": i[1],
-                                      "last_name": i[2],
-                                      "father_name": i[3],
-                                      "email": i[4],
-                                      "role": i[5],
-                                      "about": i[6],
-                                      "photo": i[7]}})
-    return JSONResponse(status_code=200, content=res_dict)
+        res_dict.append({"id": i[0],
+                         "first_name": i[1],
+                         "last_name": i[2],
+                         "father_name": i[3],
+                         "email": i[4],
+                         "role": i[5],
+                         "about": i[6],
+                         "photo": i[7],
+                         "type": "teamlead"})
+    return JSONResponse(status_code=200, content={"detail": res_dict})
 
 
 @router.delete("/team")
