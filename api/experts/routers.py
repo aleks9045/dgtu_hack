@@ -143,6 +143,9 @@ async def get_company(id_co: int,
 @router.post('/case', summary="Add case")
 async def add_case(schema: AddCaseSchema, payload: dict = Depends(token.check),
                    session: AsyncSession = Depends(db_session.get_async_session)):
+    print(schema)
+    print(schema)
+    print(schema)
     stmt = insert(CaseModel).values(
         name=schema["name"],
         about=schema["about"],
