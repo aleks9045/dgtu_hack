@@ -7,7 +7,7 @@ from fastapi.routing import APIRouter
 from sqlalchemy import insert, select, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from api.experts.schemas import ExpertLoginSchema, ExpertCreateSchema
-from api.experts.models import ExpertModel
+from api.experts.models import ExpertModel, CompanyModel
 from database import db_session
 from api.auth.utils import password, token
 from api.admin.schemas import AdminLoginSchema
@@ -96,5 +96,15 @@ async def get_user(payload: dict = Depends(token.check),
                                                   "father_name": result[3],
                                                   "email": result[4],
                                                   "role": result[5],
-                                                  "about": result[6],
+                                                  "company": result[6],
                                                   "photo": result[7]})
+
+@router.get('/company', summary="Get information about company")
+async def get_user(id_co: int,
+                   session: AsyncSession = Depends(db_session.get_async_session)):
+    result = await session.execute(select(CompanyModel.id_co, CompanyModel.name, CompanyModel.case).where(CompanyModel.id_co == id_co))
+    result = result.fetchone()
+    return JSONResponse(status_code=200, content={"id_co": result[0],
+                                                  "name": result[1],
+                                                  "case": result[2]
+                                                  })

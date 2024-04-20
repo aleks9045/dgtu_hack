@@ -24,4 +24,3 @@ class JobModel(Base):
     id_j = Column(SmallInteger, primary_key=True, autoincrement=True)
     github = Column(VARCHAR(255), nullable=False)
     case = Column(SmallInteger, ForeignKey('case.id_ca'), nullable=False)
-
