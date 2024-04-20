@@ -83,14 +83,14 @@ async def get_user(payload: dict = Depends(token.check),
         ExpertModel.role,
         ExpertModel.company,
         ExpertModel.photo).where(
-        ExpertModel.id_u == int(payload["sub"]))
+        ExpertModel.id_e == int(payload["sub"]))
     result = await session.execute(query)
     try:
         result = result.fetchone()
         print(result[0])
     except Exception:
         raise HTTPException(status_code=404, detail="Пользователь не найден.")
-    return JSONResponse(status_code=200, content={"id_u": result[0],
+    return JSONResponse(status_code=200, content={"id_e": result[0],
                                                   "first_name": result[1],
                                                   "last_name": result[2],
                                                   "father_name": result[3],
