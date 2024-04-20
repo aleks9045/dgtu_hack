@@ -22,4 +22,4 @@ class UserPatchSchema(BaseModel):
     email: str = Field(title="user's email", default=None)
     password: str = Field(title="user's password", default=None)
     role: str = Field(title="user's role", default=None)
-    about: str = Field(title="about user", default=None)
+    company: str = Field(title="about user", default=None)
