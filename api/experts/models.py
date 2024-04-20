@@ -13,7 +13,7 @@ class ExpertModel(Base):
     role = Column(VARCHAR(32), nullable=False)
     hashed_password = Column(VARCHAR(1023), nullable=False)
     photo = Column(VARCHAR(255), nullable=True)
-    company = Column(SmallInteger, ForeignKey('case.id_c'), nullable=False)
+    company = Column(SmallInteger, ForeignKey('case.id_co'), nullable=False)
 
 
 
