@@ -12,7 +12,7 @@ class UserCreateSchema(BaseModel):
 
 
 class UserLoginSchema(BaseModel):
-    email: str = Field(title="user's email")
+    email: EmailStr = Field(title="user's email")
     password: str = Field(title="user's password")
 
 class UserPatchSchema(BaseModel):

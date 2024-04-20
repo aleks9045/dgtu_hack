@@ -203,6 +203,7 @@ async def send(id_u: int,
     send_notification_delete.delay(user_data[0], user_data[1], user_data[2], team_data[0])
     return JSONResponse(status_code=200, content={"detail": "Успешно."})
 
+
 @router.get('/all_teams', summary="Get all teams")
 async def all_teams(session: AsyncSession = Depends(db_session.get_async_session)):
     res_dict = []
@@ -215,6 +216,7 @@ async def all_teams(session: AsyncSession = Depends(db_session.get_async_session
                          "banner": i[3]})
     return JSONResponse(status_code=200, content=res_dict)
 
+
 @router.post('/job', summary="Add job")
 async def add_job(schema: AddJobSchema, payload: dict = Depends(token.check),
                   session: AsyncSession = Depends(db_session.get_async_session)):
@@ -224,15 +226,18 @@ async def add_job(schema: AddJobSchema, payload: dict = Depends(token.check),
     await session.commit()
     return JSONResponse(status_code=200, content={"detail": "Работа успешно добавлена."})
 
+
 @router.delete("/job")
 async def delete_job(id_j: int, payload: dict = Depends(token.check),
-                      session: AsyncSession = Depends(db_session.get_async_session)):
+                     session: AsyncSession = Depends(db_session.get_async_session)):
     await session.execute(delete(JobModel).where(JobModel.id_j == id_j))
     await session.commit()
     return JSONResponse(status_code=200, content={"detail": "Успешно."})
 
+
 @router.get('/job', summary="Get job by team id")
-async def get_job_by_team_id(id_t: int, session: AsyncSession = Depends(db_session.get_async_session)):
+async def get_job_by_team_id(id_t: int, payload: dict = Depends(token.check),
+                             session: AsyncSession = Depends(db_session.get_async_session)):
     result = await session.execute(
         select(TeamModel.job).where(TeamModel.id_t == id_t))
     job_id = result.fetchone()[0]
@@ -242,7 +247,8 @@ async def get_job_by_team_id(id_t: int, session: AsyncSession = Depends(db_sessi
     return JSONResponse(status_code=200, content={"id_j": job[0],
                                                   "github": job[1],
                                                   "file": job[2],
-                                                  "case": job[3],})
+                                                  "case": job[3], })
+
 
 @router.get('/all_job', summary="Get all jobs")
 async def all_case(session: AsyncSession = Depends(db_session.get_async_session)):
