@@ -206,3 +206,16 @@ async def send(id_u: int,
     print(team_data, user_data)
     send_notification_delete.delay(user_data[0], user_data[1], user_data[2], team_data[0])
     return JSONResponse(status_code=200, content={"detail": "Успешно."})
+
+
+@router.get('/all_teams', summary="Get all teams")
+async def all_teams(session: AsyncSession = Depends(db_session.get_async_session)):
+    res_dict = []
+    result = await session.execute(
+        select(TeamModel.id_t, TeamModel.name, TeamModel.about, TeamModel.banner).where(1 == 1))
+    for i in result.all():
+        res_dict.append({"id_t": i[0],
+                         "name": i[1],
+                         "about": i[2],
+                         "banner": i[3]})
+    return JSONResponse(status_code=200, content=res_dict)
