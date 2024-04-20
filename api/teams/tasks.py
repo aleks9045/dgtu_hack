@@ -10,14 +10,14 @@ def send_notification_add(email_to: str, first_name: str, last_name: str, team_n
     smtp_server = smtplib.SMTP('smtp.gmail.com', 587)
     smtp_server.starttls()
     smtp_server.login(MAIL_USERNAME, MAIL_PASSWORD)
-    email = MIMEText(
-        '<div style="color: #2B2D31;">'
-        f'<h1 style="color: white;">Здравствуйте, {first_name} {last_name}</h1>'
-        f'<h3 style="color: white;">Вы были приглашены в команду {team_name}</h3>',
-        f'<p>Перейдите по ссылке, чтобы согласиться или отказаться вступить в неё.<p>'
-        '</div>'
-        'html')
-    smtp_server.sendmail(MAIL_USERNAME, email_to, email.as_string())
+    email = MIMEText(f'''
+        <div style="background-color: #2B2D31; border-radius:10px;">
+        <h1 style="color: white; padding: 18px 0 0 20px;">Здравствуйте, {first_name} {last_name}</h1>
+        <h3 style="color: white; padding: 15px 0 0 20px;">Вы были приглашены в команду {team_name}</h3>
+        <p style="color: white; padding: 0 0 20px 20px;">Перейдите по ссылке, чтобы вступить в неё.<p>
+        <p style="color: white; padding: 20px 0 20px 20px;">Ссылка: sdfadsfasdfasdfsadgasd<p>
+        </div>''', "html")
+    smtp_server.sendmail("Awesome Hackaton 2024", email_to, email.as_string())
 
 @celery.task
 def send_notification_delete(email_to: str, first_name: str, last_name: str, team_name: str):

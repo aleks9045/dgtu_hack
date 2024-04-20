@@ -8,7 +8,8 @@ from fastapi.responses import JSONResponse
 from api.teams.tasks import send_notification_add, send_notification_delete
 
 from api.auth.models import UserModel
-from api.teams.models import TeamModel, TeamLeadModel, InviteModel
+from api.teams.models import TeamModel, TeamLeadModel
+from api.invites.models import InviteModel
 from api.teams.schemas import TeamCreateSchema, AddUserSchema, TeamPatchSchema
 from sqlalchemy import insert, select, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession

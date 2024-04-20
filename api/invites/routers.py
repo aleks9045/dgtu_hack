@@ -8,7 +8,8 @@ from fastapi.responses import JSONResponse
 from api.teams.tasks import send_notification_add, send_notification_delete
 
 from api.auth.models import UserModel
-from api.teams.models import TeamModel, TeamLeadModel, InviteModel
+from api.teams.models import TeamModel, TeamLeadModel
+from api.invites.models import InviteModel
 from api.teams.schemas import TeamCreateSchema, AddUserSchema, TeamPatchSchema
 from sqlalchemy import insert, select, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -38,9 +39,12 @@ async def get_all_invites_by_user(id_u: int, payload: dict = Depends(token.check
     result = await session.execute(select(InviteModel.id_i, InviteModel.user, InviteModel.team).where(InviteModel.user == id_u))
     invite = result.fetchall()
     for i in invite:
+        result = await session.execute(
+            select(TeamModel.id_t, TeamModel.name, TeamModel.about, TeamModel.banner).where(TeamModel.id_t == i[2]))
+        team_user = result.fetchone()
         res_dict.append({"id_i": i[0],
                          "id_u": i[1],
-                         "id_t": i[2]})
+                         "team": team_user[0]})
     return JSONResponse(status_code=200, content=res_dict)
 
 @router.get("/invite_by_team")
