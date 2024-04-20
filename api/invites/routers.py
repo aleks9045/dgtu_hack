@@ -69,7 +69,7 @@ async def get_all_invites_by_team(id_t: int, payload: dict = Depends(token.check
 
 
 @router.delete("/invite_accept")
-async def invite_accept(id_u: int, id_t: int, payload: dict = Depends(token.check),
+async def invite_accept(id_u: int, id_t: int,
                         session: AsyncSession = Depends(db_session.get_async_session)):
     stmt = update(UserModel).where(UserModel.id_u == id_u).values(team=id_t)
     await session.execute(stmt)
