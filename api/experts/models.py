@@ -35,7 +35,7 @@ class CaseModel(Base):
     id_ca = Column(SmallInteger, primary_key=True, autoincrement=True)
     name = Column(VARCHAR(64), nullable=False, unique=True)
     about = Column(VARCHAR(255), nullable=True)
-    file = Column(VARCHAR(255), nullable=False)
+    file = Column(VARCHAR(255), nullable=True)
     company = Column(SmallInteger, ForeignKey('company.id_co', ondelete="CASCADE"), nullable=True)
 
 class CompanyModel(Base):

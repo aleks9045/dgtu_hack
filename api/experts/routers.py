@@ -97,17 +97,17 @@ async def get_expert(payload: dict = Depends(token.check),
                                                   "photo": result[7]})
 
 @router.patch('/photo', summary="Change expert's photo")
-async def patch_photo(payload: dict = Depends(token.check), photo: UploadFile = File(...),
+async def patch_photo(payload: dict = Depends(token.check), file: UploadFile = File(...),
                       session: AsyncSession = Depends(db_session.get_async_session)):
     query = select(ExpertModel.photo).where(ExpertModel.email == payload["sub"])
     result = await session.execute(query)
     result = result.scalars().all()
-    if result[0] != photo.filename and result[0] != "media/user_photo/default.png":
+    if result[0] != file.filename and result[0] != "media/user_photo/default.png":
         await os.remove(result[0])
     try:
-        file_path = f'media/user_photo/{photo.filename}'
+        file_path = f'media/user_photo/{file.filename}'
         async with aiofiles.open(file_path, 'wb') as out_file:
-            content = photo.file.read()
+            content = file.file.read()
             await out_file.write(content)
         stmt = update(ExpertModel).where(ExpertModel.email == payload["sub"]).values(photo=file_path)
         await session.execute(statement=stmt)
