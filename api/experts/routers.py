@@ -70,3 +70,30 @@ async def login(schema: ExpertLoginSchema,
         "access_token": token.create(user_id, type_="access"),
         "refresh_token": token.create(user_id, type_="refresh")
     })
+
+@router.get('/expert', summary="Get information about user")
+async def get_user(payload: dict = Depends(token.check),
+                   session: AsyncSession = Depends(db_session.get_async_session)):
+    query = select(
+        ExpertModel.id_e,
+        ExpertModel.first_name,
+        ExpertModel.last_name,
+        ExpertModel.father_name,
+        ExpertModel.email,
+        ExpertModel.role,
+        ExpertModel.company,
+        ExpertModel.photo).where(
+        ExpertModel.id_u == int(payload["sub"]))
+    result = await session.execute(query)
+    try:
+        result = result.fetchone()
+    except Exception:
+        raise HTTPException(status_code=404, detail="Пользователь не найден.")
+    return JSONResponse(status_code=200, content={"id_u": result[0],
+                                                  "first_name": result[1],
+                                                  "last_name": result[2],
+                                                  "father_name": result[3],
+                                                  "email": result[4],
+                                                  "role": result[5],
+                                                  "about": result[6],
+                                                  "photo": result[7]})
