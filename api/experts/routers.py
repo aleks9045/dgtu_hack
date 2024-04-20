@@ -203,8 +203,7 @@ async def all_case(session: AsyncSession = Depends(db_session.get_async_session)
         select(CaseModel.id_ca, CaseModel.name, CaseModel.about, CaseModel.file, CaseModel.company).where(1 == 1))
     for i in result.all():
         result = await session.execute(select(CompanyModel.name).where(CompanyModel.id_co == i[4]))
-        company_name = result.fetchone()
-        print(company_name)
+        company_name = result.fetchone()[0]
         res_dict.append({"id_ca": i[0],
                          "name": i[1],
                          "about": i[2],
