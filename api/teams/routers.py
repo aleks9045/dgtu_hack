@@ -1,4 +1,5 @@
 import os
+from email.message import EmailMessage
 
 import aiofiles
 from fastapi import Depends, HTTPException, UploadFile, File
@@ -46,7 +47,7 @@ async def get_team_by_user(id_u: int, payload: dict = Depends(token.check),
         result = await session.execute(select(TeamLeadModel.team).where(TeamLeadModel.user == id_u))
         team = result.fetchone()
         if team is None:
-            return JSONResponse(status_code=200, content={"detail": ""})
+            return JSONResponse(status_code=200, content={""})
 
     result = await session.execute(
         select(TeamModel.id_t, TeamModel.name, TeamModel.about, TeamModel.banner).where(TeamModel.id_t == team[0]))
@@ -180,11 +181,15 @@ async def delete_team(id_u: int, payload: dict = Depends(token.check),
     await session.commit()
     return JSONResponse(status_code=200, content={"detail": "Успешно."})
 
+
 @router.get("/send_notification")
-async def send(id_u: int, payload: dict = Depends(token.check),
-                      session: AsyncSession = Depends(db_session.get_async_session)):
+async def send(id_u: int, id_t: int, payload: dict = Depends(token.check),
+               session: AsyncSession = Depends(db_session.get_async_session)):
     result = await session.execute(
-        select(UserModel.email).where(UserModel.id_u == id_u))
-    email = result.fetchone()[0]
-    send_notification(email)
+        select(TeamModel.name, TeamModel.banner).where(TeamModel.id_t == id_t))
+    team_data = result.fetchone()
+    result = await session.execute(
+        select(UserModel.email, UserModel.first_name, UserModel.last_name).where(UserModel.id_u == id_u))
+    user_data = result.fetchone()
+    send_notification(user_data[0], user_data[1], user_data[2], team_data[0], team_data[1])
     return JSONResponse(status_code=200, content={"detail": "Успешно."})

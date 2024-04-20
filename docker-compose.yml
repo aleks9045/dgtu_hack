@@ -46,18 +46,19 @@ services:
 #      retries: 2
     restart: always
   redis:
-    image: redis:latest
+    image: redis:7.2.4-alpine
+    container_name: redis
     restart: always
     ports:
       - "6379:6379"
-    volumes:
-      - redis_data:/root/redis
+#    volumes:
+#      - redis_data:/root/redis
     env_file:
       - .env
 volumes:
   media:
   pgdata:
-  redis_data:
+#  redis_data:
 
 networks:
   default:
