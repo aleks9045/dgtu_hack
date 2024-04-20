@@ -150,6 +150,7 @@ async def add_case(schema: AddCaseSchema, payload: dict = Depends(token.check),
         file="media/case_files/default.png")
     await session.execute(statement=stmt)
     await session.commit()
+    print("OKKEEEEEE")
     return JSONResponse(status_code=200, content={"detail": "Кейс успешно добавлен."})
 
 
