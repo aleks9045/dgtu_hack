@@ -47,7 +47,7 @@ async def get_team_by_user(id_u: int, payload: dict = Depends(token.check),
         result = await session.execute(select(TeamLeadModel.team).where(TeamLeadModel.user == id_u))
         team = result.fetchone()
         if team is None:
-            return JSONResponse(status_code=200, content={""})
+            return JSONResponse(status_code=200, content="")
 
     result = await session.execute(
         select(TeamModel.id_t, TeamModel.name, TeamModel.about, TeamModel.banner).where(TeamModel.id_t == team[0]))
