@@ -1,18 +1,13 @@
-import os
-
-import aiofiles
-from fastapi import UploadFile, Depends, HTTPException, Request, File
+from fastapi import Depends, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.routing import APIRouter
-from sqlalchemy import insert, select, delete, update
+from sqlalchemy import insert, select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
-from api.experts.schemas import ExpertLoginSchema, ExpertCreateSchema, AddCaseSchema, AddJobSchema
-from api.experts.models import ExpertModel, CompanyModel, CaseModel
-from api.teams.models import JobModel
-from database import db_session
+
 from api.auth.utils import password, token
-from api.admin.schemas import AdminLoginSchema
-from api.admin.models import AdminModel
+from api.experts.models import ExpertModel, CompanyModel, CaseModel
+from api.experts.schemas import ExpertLoginSchema, ExpertCreateSchema, AddCaseSchema
+from database import db_session
 
 router = APIRouter(
     prefix="/experts",
@@ -22,7 +17,7 @@ router = APIRouter(
 
 @router.post('/register', summary="Create new expert")
 async def create_expert(schema: ExpertCreateSchema, payload: dict = Depends(token.check),
-                      session: AsyncSession = Depends(db_session.get_async_session)):
+                        session: AsyncSession = Depends(db_session.get_async_session)):
     schema = schema.model_dump()
     if password.check(schema["password"]):
         pass
@@ -73,7 +68,7 @@ async def login(schema: ExpertLoginSchema,
 
 @router.get('/expert', summary="Get information about expert")
 async def get_expert(payload: dict = Depends(token.check),
-                   session: AsyncSession = Depends(db_session.get_async_session)):
+                     session: AsyncSession = Depends(db_session.get_async_session)):
     query = select(
         ExpertModel.id_e,
         ExpertModel.first_name,
@@ -102,11 +97,12 @@ async def get_expert(payload: dict = Depends(token.check),
 
 @router.get('/company', summary="Get information about company")
 async def get_company(id_co: int,
-                   session: AsyncSession = Depends(db_session.get_async_session)):
+                      session: AsyncSession = Depends(db_session.get_async_session)):
     result = await session.execute(
         select(CompanyModel.id_co, CompanyModel.name, CompanyModel.case).where(CompanyModel.id_co == id_co))
     result = result.fetchone()
     return JSONResponse(status_code=200, content={"name": result[1]})
+
 
 @router.post('/case', summary="Add case")
 async def add_case(schema: AddCaseSchema, payload: dict = Depends(token.check),
@@ -120,12 +116,14 @@ async def add_case(schema: AddCaseSchema, payload: dict = Depends(token.check),
     await session.commit()
     return JSONResponse(status_code=200, content={"detail": "Кейс успешно добавлен."})
 
+
 @router.delete("/case")
 async def delete_case(id_ca: int, payload: dict = Depends(token.check),
                       session: AsyncSession = Depends(db_session.get_async_session)):
     await session.execute(delete(CaseModel).where(CaseModel.id_ca == id_ca))
     await session.commit()
     return JSONResponse(status_code=200, content={"detail": "Успешно."})
+
 
 @router.get('/all_case', summary="Get all cases")
 async def all_case(session: AsyncSession = Depends(db_session.get_async_session)):
