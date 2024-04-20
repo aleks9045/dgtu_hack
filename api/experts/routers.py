@@ -160,8 +160,11 @@ async def add_case(schema: AddCaseSchema, payload: dict = Depends(token.check),
 @router.delete("/case")
 async def delete_case(id_ca: int,
                       session: AsyncSession = Depends(db_session.get_async_session)):
+    result = await session.execute(select(CaseModel.file).where(CaseModel.id_ca == id_ca))
+    file = result.fetchone()[0]
     await session.execute(delete(CaseModel).where(CaseModel.id_ca == id_ca))
     await session.commit()
+    await os.remove(file)
     return JSONResponse(status_code=200, content={"detail": "Успешно."})
 
 @router.patch('/file', summary="Change case's file")
@@ -176,7 +179,6 @@ async def patch_file(id_ca: int, payload: dict = Depends(token.check), photo: Up
         await session.execute(statement=stmt)
         await session.commit()
     except Exception as e:
-        print(e)
         raise HTTPException(status_code=400, detail="Произошла неизвестная ошибка.")
     return JSONResponse(status_code=200, content={"detail": "Успешно."})
 
