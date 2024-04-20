@@ -29,12 +29,13 @@ async def create_team(schema: TeamCreateSchema, payload: dict = Depends(token.ch
     stmt = insert(TeamModel).values(name=schema['name'], about=schema['about'], banner='media/teams_banner/default.png')
     await session.execute(stmt)
     await session.commit()
-    query = select(TeamModel.id_t).where(TeamModel.name == schema["name"])
-    result = await session.execute(query)
-    stmt = insert(TeamLeadModel).values(user=schema["id_u"], team=result.fetchone()[0])
+    result = await session.execute(select(TeamModel.id_t).where(TeamModel.name == schema["name"]))
+    id_t = result.fetchone()[0]
+    stmt = insert(TeamLeadModel).values(user=schema["id_u"], team=id_t)
     await session.execute(stmt)
     await session.commit()
-    return JSONResponse(status_code=200, content={"detail": "Команда была добавлена."})
+    return JSONResponse(status_code=200, content={"detail": "Команда была добавлена.",
+                                                  "id_t": id_t})
 
 
 @router.get("/team")
@@ -47,7 +48,7 @@ async def get_team_by_user(id_u: int, payload: dict = Depends(token.check),
         result = await session.execute(select(TeamLeadModel.team).where(TeamLeadModel.user == id_u))
         team = result.fetchone()
         if team is None:
-            return JSONResponse(status_code=200, content="")
+            return JSONResponse(status_code=200, content={"detail": ""})
 
     result = await session.execute(
         select(TeamModel.id_t, TeamModel.name, TeamModel.about, TeamModel.banner).where(TeamModel.id_t == team[0]))
