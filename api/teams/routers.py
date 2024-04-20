@@ -135,10 +135,10 @@ async def get_all_users_from_team(id_t: int, payload: dict = Depends(token.check
                                     "about": i[6],
                                     "photo": i[7]}})
     result = await session.execute(select(TeamLeadModel.user).where(TeamLeadModel.team == id_t))
-    teamleam_id = result.fetchone()[0]
+    teamlead_id = result.fetchone()[0]
     result = await session.execute(
         select(UserModel.id_u, UserModel.first_name, UserModel.last_name, UserModel.father_name,
-               UserModel.email, UserModel.role, UserModel.about, UserModel.photo).where(UserModel.id_u == teamleam_id))
+               UserModel.email, UserModel.role, UserModel.about, UserModel.photo).where(UserModel.id_u == teamlead_id))
     for i in result.all():
         res_dict.append({"teamlead": {"id": i[0],
                                       "first_name": i[1],

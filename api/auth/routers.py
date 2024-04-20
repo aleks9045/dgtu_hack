@@ -7,6 +7,7 @@ from fastapi.routing import APIRouter
 from sqlalchemy import insert, select, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.teams.models import TeamLeadModel
 from database import db_session
 from api.auth.utils import password, token
 from api.auth.models import UserModel
@@ -212,11 +213,15 @@ async def delete_photo(payload: dict = Depends(token.check),
 
 @router.get('/all_user', summary="Get all users")
 async def all_user(session: AsyncSession = Depends(db_session.get_async_session)):
+    result = await session.execute(select(TeamLeadModel.user).where(1 == 1))
+    teamlead_id = result.scalars().all()
     res_dict = []
     result = await session.execute(
         select(UserModel.id_u, UserModel.first_name, UserModel.last_name, UserModel.father_name,
                UserModel.email, UserModel.role, UserModel.team, UserModel.photo).where(1 == 1).order_by(UserModel.id_u))
     for i in result.all():
+        if i[0] in teamlead_id:
+            continue
         res_dict.append({"id": i[0],
                          "first_name": i[1],
                          "last_name": i[2],
@@ -225,4 +230,5 @@ async def all_user(session: AsyncSession = Depends(db_session.get_async_session)
                          "role": i[5],
                          "team": i[6],
                          "photo": i[7]})
+
     return JSONResponse(status_code=200, content=res_dict)
