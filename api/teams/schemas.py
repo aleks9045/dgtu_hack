@@ -19,5 +19,5 @@ class TeamPatchSchema(BaseModel):
     about: str = Field(default=None)
 
 class AddJobSchema(BaseModel):
-    github: str = Field()
+    github: str = Field(default=None)
     id_ca: int = Field()

@@ -23,8 +23,7 @@ function connect(event) {
 }
 
 window.onload = function() {
-        const token = document.getElementById('username').value
-        console.log(token)
+        const token = localStorage.getItem("access")
         fetch('http://localhost:8000/auth/user', {
             method: 'GET',
             headers: {

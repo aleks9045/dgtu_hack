@@ -65,7 +65,6 @@ async def patch_team(schema: TeamPatchSchema, payload: dict = Depends(token.chec
         TeamModel.name, TeamModel.about).where(
         TeamModel.id_t == schema["id_t"]))
     result = result.fetchone()
-    print(schema)
     for count, i in enumerate(schema.keys()):
         if schema[i] is None:
             schema[i] = result[count - 1]
@@ -221,11 +220,17 @@ async def all_teams(session: AsyncSession = Depends(db_session.get_async_session
 async def add_job(schema: AddJobSchema, payload: dict = Depends(token.check),
                   session: AsyncSession = Depends(db_session.get_async_session)):
     schema = schema.model_dump()
-    stmt = insert(JobModel).values(
-        github=schema['github'],
-        case=schema['id_ca'])
-    await session.execute(statement=stmt)
-    await session.commit()
+    if schema["github"] is None:
+        stmt = insert(JobModel).values(
+            case=schema['id_ca'])
+        await session.execute(statement=stmt)
+        await session.commit()
+    else:
+        stmt = insert(JobModel).values(
+            github=schema['github'],
+            case=schema['id_ca'])
+        await session.execute(statement=stmt)
+        await session.commit()
     return JSONResponse(status_code=200, content={"detail": "Работа успешно добавлена."})
 
 
