@@ -329,7 +329,9 @@ async def all_job(session: AsyncSession = Depends(db_session.get_async_session))
                                        "usability": m[2],
                                        "frontend": m[3],
                                        "backend": m[4],
-                                       "realization": m[5]
+                                       "realization": m[5],
+                                       "user": m[-1],
+                                       "expert": m[-2]
                                        } for m in mark]})
         else:
             res_dict.append({"id_j": i[0],

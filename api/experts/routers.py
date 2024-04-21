@@ -286,3 +286,8 @@ async def patch_mark(schema: ChangeMarkSchema, payload: dict = Depends(token.che
         await session.execute(stmt)
         await session.commit()
     return JSONResponse(status_code=200, content={"detail": "Успешно."})
+
+@router.get('/mark', summary="Change mark")
+async def patch_mark(schema: ChangeMarkSchema, payload: dict = Depends(token.check),
+                      session: AsyncSession = Depends(db_session.get_async_session)):
+    schema = schema.model_dump()
