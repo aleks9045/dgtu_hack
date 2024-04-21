@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.auth.models import UserModel
 from api.auth.utils import token
-from api.experts.models import CaseModel, CompanyModel
+from api.experts.models import CaseModel, CompanyModel, MarkModel
 from api.teams.models import TeamModel, TeamLeadModel, JobModel
 from api.teams.schemas import TeamCreateSchema, TeamPatchSchema, AddJobSchema, PatchJobSchema
 from api.teams.tasks import send_notification_add, send_notification_delete
@@ -236,14 +236,16 @@ async def add_job(schema: AddJobSchema, payload: dict = Depends(token.check),
         await session.commit()
     return JSONResponse(status_code=200, content={"detail": "Работа успешно добавлена."})
 
+
 @router.patch('/job', summary="patch job")
 async def patch(schema: PatchJobSchema, payload: dict = Depends(token.check),
-                  session: AsyncSession = Depends(db_session.get_async_session)):
+                session: AsyncSession = Depends(db_session.get_async_session)):
     schema = schema.model_dump()
     stmt = update(JobModel).where(JobModel.id_j == schema['id_j']).values(github=schema['github'])
     await session.execute(statement=stmt)
     await session.commit()
     return JSONResponse(status_code=200, content={"detail": "Работа успешно обновлена."})
+
 
 @router.delete("/job")
 async def delete_job(id_j: int,
@@ -295,9 +297,29 @@ async def all_case(session: AsyncSession = Depends(db_session.get_async_session)
         result = await session.execute(
             select(TeamModel.name).where(TeamModel.id_t == i[3]))
         team_name = result.fetchone()[0]
-        res_dict.append({"id_j": i[0],
-                         "github": i[1],
-                         "case": case_data[1],
-                         "company": comp_name,
-                         "team": team_name})
+        result = await session.execute(
+            select(MarkModel.id_m, MarkModel.design, MarkModel.usability, MarkModel.frontend, MarkModel.backend,
+                   MarkModel.realization).where(MarkModel.job == i[0]))
+        mark = result.fetchone()
+        if mark is not None:
+            res_dict.append({"id_j": i[0],
+                             "github": i[1],
+                             "case": case_data[1],
+                             "company": comp_name,
+                             "team": team_name,
+                             "mark": [{"id_m": m[0],
+                                       "design": m[1],
+                                       "usability": m[2],
+                                       "frontend": m[3],
+                                       "backend": m[4],
+                                       "realization": m[5]
+                                       } for m in mark]})
+        else:
+            res_dict.append({"id_j": i[0],
+                             "github": i[1],
+                             "case": case_data[1],
+                             "company": comp_name,
+                             "team": team_name,
+                             "mark": []})
+
     return JSONResponse(status_code=200, content=res_dict)
