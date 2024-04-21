@@ -133,6 +133,18 @@ async def delete_user_from_team(id_u: int, payload: dict = Depends(token.check),
 async def get_all_users_from_team(id_t: int,
                                   session: AsyncSession = Depends(db_session.get_async_session)):
     res_dict = []
+    if id_t == 0:
+        res_dict.append({"id": "",
+                         "first_name": "",
+                         "last_name": "",
+                         "father_name": "",
+                         "email": "",
+                         "role": "",
+                         "about": "",
+                         "photo": "",
+                         "type": "teamlead"})
+        print(res_dict)
+        return JSONResponse(status_code=200, content={"detail": res_dict})
     result = await session.execute(
         select(UserModel.id_u, UserModel.first_name, UserModel.last_name, UserModel.father_name,
                UserModel.email, UserModel.role, UserModel.about, UserModel.photo).where(UserModel.team == id_t))
@@ -162,16 +174,6 @@ async def get_all_users_from_team(id_t: int,
                          "photo": i[7],
                          "type": "teamlead"})
     print(res_dict)
-    if res_dict == []:
-        res_dict.append({"id": "",
-                         "first_name": "",
-                         "last_name": "",
-                         "father_name": "",
-                         "email": "",
-                         "role":"",
-                         "about": "",
-                         "photo": "",
-                         "type": "teamlead"})
     return JSONResponse(status_code=200, content={"detail": res_dict})
 
 
