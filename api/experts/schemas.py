@@ -24,6 +24,7 @@ class AddCaseFileSchema(BaseModel):
     id_ca: int = Field()
 
 class AddMarkSchema(BaseModel):
+    id_j: int = Field()
     design: int = Field()
     usability: int = Field()
     backend: int = Field()
