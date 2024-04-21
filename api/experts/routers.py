@@ -225,7 +225,7 @@ async def add_mark(schema: AddMarkSchema, payload: dict = Depends(token.check),
             backend=schema["backend"],
             frontend=schema["frontend"],
             realization=schema["realization"],
-            id_j=schema["id_j"],
+            job=schema["id_j"],
             user=schema['user']
         )
         await session.execute(statement=stmt)
@@ -237,6 +237,7 @@ async def add_mark(schema: AddMarkSchema, payload: dict = Depends(token.check),
             backend=schema["backend"],
             frontend=schema["frontend"],
             realization=schema["realization"],
+            job=schema["id_j"],
             expert=schema['expert']
         )
         await session.execute(statement=stmt)
