@@ -47,7 +47,10 @@ async def get_team_by_user(id_u: int, payload: dict = Depends(token.check),
         result = await session.execute(select(TeamLeadModel.team).where(TeamLeadModel.user == id_u))
         team = result.fetchone()
         if team is None:
-            return JSONResponse(status_code=200, content={"detail": ""})
+            return JSONResponse(status_code=200, content={"id_t": "",
+                                                  "name": "",
+                                                  "about": "",
+                                                  "banner": ""})
 
     result = await session.execute(
         select(TeamModel.id_t, TeamModel.name, TeamModel.about, TeamModel.banner).where(TeamModel.id_t == team[0]))
@@ -157,6 +160,16 @@ async def get_all_users_from_team(id_t: int, payload: dict = Depends(token.check
                          "role": i[5],
                          "about": i[6],
                          "photo": i[7],
+                         "type": "teamlead"})
+    if res_dict == []:
+        res_dict.append({"id": "",
+                         "first_name": "",
+                         "last_name": "",
+                         "father_name": "",
+                         "email": "",
+                         "role":"",
+                         "about": "",
+                         "photo": "",
                          "type": "teamlead"})
     return JSONResponse(status_code=200, content={"detail": res_dict})
 
