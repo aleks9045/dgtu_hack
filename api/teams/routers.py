@@ -258,7 +258,7 @@ async def get_job_by_team_id(id_t: int, payload: dict = Depends(token.check),
         select(CaseModel.id_ca, CaseModel.name, CaseModel.about, CaseModel.file, CaseModel.company).where(
             CaseModel.id_ca == job[3]))
     case = result.fetchone()
-    result = await session.execute(select(CompanyModel.name).where(CompanyModel.id_co == case[0]))
+    result = await session.execute(select(CompanyModel.name).where(CompanyModel.id_co == case[4]))
     company_name = result.fetchone()[0]
     return JSONResponse(status_code=200, content={"id_j": job[0],
                                                   "github": job[1],
