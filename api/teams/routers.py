@@ -161,6 +161,7 @@ async def get_all_users_from_team(id_t: int, payload: dict = Depends(token.check
                          "about": i[6],
                          "photo": i[7],
                          "type": "teamlead"})
+    print(res_dict)
     if res_dict == []:
         res_dict.append({"id": "",
                          "first_name": "",
