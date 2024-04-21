@@ -27,7 +27,7 @@ class JobModel(Base):
 
 
 class MarkModel(Base):
-    __tablename__ = "job"
+    __tablename__ = "mark"
     id_m = Column(SmallInteger, primary_key=True, autoincrement=True)
     design = Column(SmallInteger, nullable=False)
     usability = Column(SmallInteger, nullable=False)
