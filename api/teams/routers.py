@@ -249,8 +249,8 @@ async def get_job_by_team_id(id_t: int, payload: dict = Depends(token.check),
                              session: AsyncSession = Depends(db_session.get_async_session)):
     result = await session.execute(
         select(JobModel.id_j, JobModel.github, JobModel.file, JobModel.case).where(JobModel.team == id_t))
-    job = result.fetchone()[0]
-    if job is None:
+    job = result.fetchone()
+    if job[0] is None:
         return JSONResponse(status_code=200, content={})
     return JSONResponse(status_code=200, content={"id_j": job[0],
                                                   "github": job[1],
