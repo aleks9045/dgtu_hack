@@ -3,7 +3,7 @@ import json
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from starlette.responses import FileResponse
+from starlette.responses import FileResponse, JSONResponse
 from starlette.websockets import WebSocket, WebSocketDisconnect
 
 from api.chat.utils import ws_manager
@@ -47,4 +47,35 @@ async def get_chat_id(clue: int, session: AsyncSession = Depends(db_session.get_
             raise HTTPException(status_code=404, detail="Не существует такой команды или компании.")
         else:
             result = await session.execute(
-                select(CaseModel.id_ca, JobModel.id_j, TeamModel.id_t).where(CaseModel.company == id_co))
+                select(CaseModel.id_ca).where(CaseModel.company == id_co))
+            id_ca = result.fetchone()[0]
+            res_chat_id += id_ca
+            result = await session.execute(
+                select(JobModel.id_j, JobModel.team).where(JobModel.case == id_ca))
+            result = result.fetchone()
+            id_j = result[0]
+            team = result[1]
+            res_chat_id += id_j
+            result = await session.execute(
+                select(TeamModel.id_t).where(TeamModel.id_t == team))
+            id_t = result.fetchone()[0]
+            res_chat_id += id_t
+            res_chat_id = ''.join(sorted(res_chat_id))
+            return JSONResponse(status_code=200, content={"chat_id": str(res_chat_id)})
+    else:
+        result = await session.execute(
+            select(JobModel.id_j).where(JobModel.team == id_t))
+        id_j = result.fetchone()[0]
+        result = await session.execute(
+            select(CaseModel.id_ca).where(CaseModel.company == id_co))
+        id_ca = result.fetchone()[0]
+        res_chat_id += id_ca
+        result = await session.execute(
+            select(JobModel.id_j, JobModel.team).where(JobModel.case == id_ca))
+        result = result.fetchone()
+        id_j = result[0]
+        team = result[1]
+        res_chat_id += id_j
+
+        res_chat_id += id_t
+        res_chat_id = ''.join(sorted(res_chat_id))
