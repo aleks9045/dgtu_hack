@@ -3,8 +3,7 @@ services:
     container_name: backend
     depends_on:
       - postgres
-#      - celery
-#        condition: service_healthy
+      - celery
     build: .
     ports:
       - "8000:8000"
@@ -41,38 +40,33 @@ services:
       - pgdata:/var/lib/postgresql/data
     networks:
       - default
-#    healthcheck:
-#      test: [ "CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'" ]
-#      interval: 5s
-#      timeout: 2s
-#      retries: 2
     restart: always
-#  redis:
-#    image: redis:7.2.4-alpine
-#    container_name: redis
-#    restart: always
-#    ports:
-#      - "6379:6379"
-#    env_file:
-#      - .env
-#    volumes:
-#      - redis_data:/root/redis
-#  celery:
-#    container_name: celery
-#    build: .
-#    command:
-#      celery -A api.teams.tasks:celery worker --loglevel=INFO
-#    depends_on:
-#      - redis
-#  flower:
-#    container_name: flower
-#    build: .
-#    command:
-#      celery -A api.teams.tasks:celery flower
-#    depends_on:
-#      - celery
-#    ports:
-#      - "5555:5555"
+  redis:
+    image: redis:7.2.4-alpine
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    env_file:
+      - .env
+    volumes:
+      - redis_data:/root/redis
+  celery:
+    container_name: celery
+    build: .
+    command:
+      celery -A api.teams.tasks:celery worker --loglevel=INFO
+    depends_on:
+      - redis
+  flower:
+    container_name: flower
+    build: .
+    command:
+      celery -A api.teams.tasks:celery flower
+    depends_on:
+      - celery
+    ports:
+      - "5555:5555"
 
 volumes:
   user_photo:
