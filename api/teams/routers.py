@@ -219,6 +219,7 @@ async def all_teams(session: AsyncSession = Depends(db_session.get_async_session
 @router.post('/job', summary="Add job")
 async def add_job(schema: AddJobSchema, payload: dict = Depends(token.check),
                   session: AsyncSession = Depends(db_session.get_async_session)):
+    schema = schema.model_dump()
     if schema["github"] is None:
         stmt = insert(JobModel).values(
             case=schema['id_ca'],
