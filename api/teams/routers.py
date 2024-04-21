@@ -134,7 +134,7 @@ async def get_all_users_from_team(id_t: int,
                                   session: AsyncSession = Depends(db_session.get_async_session)):
     res_dict = []
     if id_t == 0:
-        res_dict.append({"id": "",
+        res_dict.append({"id": 0,
                          "first_name": "",
                          "last_name": "",
                          "father_name": "",
