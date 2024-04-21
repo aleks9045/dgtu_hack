@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.auth.models import UserModel
 from api.auth.utils import token
+from api.experts.models import CaseModel, CompanyModel
 from api.teams.models import TeamModel, TeamLeadModel, JobModel
 from api.teams.schemas import TeamCreateSchema, TeamPatchSchema, AddJobSchema
 from api.teams.tasks import send_notification_add, send_notification_delete
@@ -250,12 +251,24 @@ async def get_job_by_team_id(id_t: int, payload: dict = Depends(token.check),
     result = await session.execute(
         select(JobModel.id_j, JobModel.github, JobModel.file, JobModel.case).where(JobModel.team == id_t))
     job = result.fetchone()
+    print(job)
     if job[0] is None:
         return JSONResponse(status_code=200, content={})
+    result = await session.execute(
+        select(CaseModel.id_ca, CaseModel.name, CaseModel.about, CaseModel.file, CaseModel.company).where(
+            CaseModel.id_ca == job[3]))
+    case = result.fetchone()
+    result = await session.execute(select(CompanyModel.name).where(CompanyModel.id_co == case[0]))
+    company_name = result.fetchone()[0]
     return JSONResponse(status_code=200, content={"id_j": job[0],
                                                   "github": job[1],
                                                   "file": job[2],
-                                                  "case": job[3]})
+                                                  "case": {"id_ca": case[0],
+                                                           "name": case[1],
+                                                           "about": case[2],
+                                                           "file": case[3],
+                                                           "company": company_name
+                                                           }})
 
 
 @router.get('/all_job', summary="Get all jobs")
