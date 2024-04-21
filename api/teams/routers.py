@@ -247,8 +247,9 @@ async def get_job_by_team_id(id_t: int, payload: dict = Depends(token.check),
                              session: AsyncSession = Depends(db_session.get_async_session)):
     result = await session.execute(
         select(TeamModel.job).where(TeamModel.id_t == id_t))
-    job_id = result.fetchone()
-    print(job_id)
+    job_id = result.fetchone()[0]
+    if job_id is None:
+        raise HTTPException(status_code=400, detail="")
     result = await session.execute(
         select(JobModel.id_j, JobModel.github, JobModel.file, JobModel.case).where(JobModel.id_j == job_id))
     job = result.fetchone()
