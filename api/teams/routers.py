@@ -10,7 +10,7 @@ from api.auth.models import UserModel
 from api.auth.utils import token
 from api.experts.models import CaseModel, CompanyModel
 from api.teams.models import TeamModel, TeamLeadModel, JobModel
-from api.teams.schemas import TeamCreateSchema, TeamPatchSchema, AddJobSchema
+from api.teams.schemas import TeamCreateSchema, TeamPatchSchema, AddJobSchema, PatchJobSchema
 from api.teams.tasks import send_notification_add, send_notification_delete
 from api.teams.utils import user_exists
 from database import db_session
@@ -236,9 +236,17 @@ async def add_job(schema: AddJobSchema, payload: dict = Depends(token.check),
         await session.commit()
     return JSONResponse(status_code=200, content={"detail": "Работа успешно добавлена."})
 
+@router.patch('/job', summary="patch job")
+async def patch(schema: PatchJobSchema, payload: dict = Depends(token.check),
+                  session: AsyncSession = Depends(db_session.get_async_session)):
+    schema = schema.model_dump()
+    stmt = update(JobModel).where(JobModel.id_j == schema['id_j']).values(github=schema['github'])
+    await session.execute(statement=stmt)
+    await session.commit()
+    return JSONResponse(status_code=200, content={"detail": "Работа успешно обновлена."})
 
 @router.delete("/job")
-async def delete_job(id_j: int, payload: dict = Depends(token.check),
+async def delete_job(id_j: int,
                      session: AsyncSession = Depends(db_session.get_async_session)):
     await session.execute(delete(JobModel).where(JobModel.id_j == id_j))
     await session.commit()
