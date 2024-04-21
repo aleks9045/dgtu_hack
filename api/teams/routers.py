@@ -257,7 +257,7 @@ async def delete_job(id_j: int,
 async def get_job_by_team_id(id_t: int, payload: dict = Depends(token.check),
                              session: AsyncSession = Depends(db_session.get_async_session)):
     result = await session.execute(
-        select(JobModel.id_j, JobModel.github, JobModel.file, JobModel.case).where(JobModel.team == id_t))
+        select(JobModel.id_j, JobModel.github, JobModel.case).where(JobModel.team == id_t))
     job = result.fetchone()
     print(job)
     if job[0] is None:
@@ -270,7 +270,6 @@ async def get_job_by_team_id(id_t: int, payload: dict = Depends(token.check),
     company_name = result.fetchone()[0]
     return JSONResponse(status_code=200, content={"id_j": job[0],
                                                   "github": job[1],
-                                                  "file": job[2],
                                                   "case": {"id_ca": case[0],
                                                            "name": case[1],
                                                            "about": case[2],
@@ -283,10 +282,9 @@ async def get_job_by_team_id(id_t: int, payload: dict = Depends(token.check),
 async def all_case(session: AsyncSession = Depends(db_session.get_async_session)):
     res_dict = []
     result = await session.execute(
-        select(JobModel.id_j, JobModel.github, JobModel.file, JobModel.case).where(1 == 1))
+        select(JobModel.id_j, JobModel.github, JobModel.case).where(1 == 1))
     for i in result.all():
         res_dict.append({"id_j": i[0],
                          "github": i[1],
-                         "file": i[2],
-                         "case": i[3]})
+                         "case": i[2]})
     return JSONResponse(status_code=200, content=res_dict)
