@@ -284,9 +284,20 @@ async def get_job_by_team_id(id_t: int, payload: dict = Depends(token.check),
 async def all_case(session: AsyncSession = Depends(db_session.get_async_session)):
     res_dict = []
     result = await session.execute(
-        select(JobModel.id_j, JobModel.github, JobModel.case).where(1 == 1))
+        select(JobModel.id_j, JobModel.github, JobModel.case, JobModel.team).where(1 == 1))
     for i in result.all():
+        result = await session.execute(
+            select(CaseModel.company, CaseModel.name).where(CaseModel.id_ca == i[2]))
+        case_data = result.fetchone()
+        result = await session.execute(
+            select(CompanyModel.name).where(CompanyModel.id_co == case_data[0]))
+        comp_name = result.fetchone()[0]
+        result = await session.execute(
+            select(TeamModel.name).where(TeamModel.id_t == i[3]))
+        team_name = result.fetchone()[0]
         res_dict.append({"id_j": i[0],
                          "github": i[1],
-                         "case": i[2]})
+                         "case": case_data[1],
+                         "company": comp_name,
+                         "team": team_name})
     return JSONResponse(status_code=200, content=res_dict)
