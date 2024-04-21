@@ -37,4 +37,4 @@ class MarkModel(Base):
     comment = Column(VARCHAR(255), nullable=True)
     user = Column(SmallInteger, ForeignKey('user.id_u', ondelete="CASCADE"), nullable=False)
     expert = Column(SmallInteger, ForeignKey('expert.id_e', ondelete="CASCADE"), nullable=False)
-    job = Column(SmallInteger, ForeignKey('jib.id_j', ondelete="CASCADE"), nullable=False)
+    job = Column(SmallInteger, ForeignKey('job.id_j', ondelete="CASCADE"), nullable=False)
