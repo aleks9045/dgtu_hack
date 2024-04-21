@@ -7,8 +7,8 @@ from sqlalchemy import insert, select, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.auth.utils import password, token
-from api.experts.models import ExpertModel, CompanyModel, CaseModel
-from api.experts.schemas import ExpertLoginSchema, ExpertCreateSchema, AddCaseSchema, AddCaseFileSchema
+from api.experts.models import ExpertModel, CompanyModel, CaseModel, MarkModel
+from api.experts.schemas import ExpertLoginSchema, ExpertCreateSchema, AddCaseSchema, AddCaseFileSchema, AddMarkSchema
 from database import db_session
 
 router = APIRouter(
@@ -211,3 +211,34 @@ async def all_case(session: AsyncSession = Depends(db_session.get_async_session)
                          "file": i[3],
                          "company": company_name})
     return JSONResponse(status_code=200, content=res_dict)
+
+
+@router.post('/case', summary="Add case")
+async def add_case(schema: AddMarkSchema, payload: dict = Depends(token.check),
+                   session: AsyncSession = Depends(db_session.get_async_session)):
+    schema = schema.model_dump()
+    if schema['user'] is not None:
+        stmt = insert(MarkModel).values(
+            design=schema["design"],
+            usability=schema["usability"],
+            backend=schema["backend"],
+            frontend=schema["frontend"],
+            realization=schema["realization"],
+            user=schema['user']
+        )
+        await session.execute(statement=stmt)
+        await session.commit()
+    elif schema['expert'] is not None:
+        stmt = insert(MarkModel).values(
+            design=schema["design"],
+            usability=schema["usability"],
+            backend=schema["backend"],
+            frontend=schema["frontend"],
+            realization=schema["realization"],
+            expert=schema['expert']
+        )
+        await session.execute(statement=stmt)
+        await session.commit()
+    else:
+        raise HTTPException(status_code=400, detail="Произошла ошибка.")
+    return JSONResponse(status_code=200, content={"detail": "Успешно"})
