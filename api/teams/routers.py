@@ -299,7 +299,7 @@ async def get_job_by_team_id(id_t: int, payload: dict = Depends(token.check),
 
 
 @router.get('/all_job', summary="Get all jobs")
-async def all_case(session: AsyncSession = Depends(db_session.get_async_session)):
+async def all_job(session: AsyncSession = Depends(db_session.get_async_session)):
     res_dict = []
     result = await session.execute(
         select(JobModel.id_j, JobModel.github, JobModel.case, JobModel.team).where(1 == 1))
@@ -316,9 +316,8 @@ async def all_case(session: AsyncSession = Depends(db_session.get_async_session)
         result = await session.execute(
             select(MarkModel.id_m, MarkModel.design, MarkModel.usability, MarkModel.frontend, MarkModel.backend,
                    MarkModel.realization).where(MarkModel.job == i[0]))
-        mark = result.fetchone()
-        print(i)
-        print(mark)
+        mark = result.fetchall()
+        print("mark", mark)
         if mark is not None:
             res_dict.append({"id_j": i[0],
                              "github": i[1],
