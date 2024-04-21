@@ -20,11 +20,11 @@ class ExpertModel(Base):
 class MarkModel(Base):
     __tablename__ = "mark"
     id_m = Column(SmallInteger, primary_key=True, autoincrement=True)
-    design = Column(VARCHAR(32), nullable=True)
-    usability = Column(VARCHAR(32), nullable=True)
-    backend = Column(VARCHAR(32), nullable=True)
-    frontend = Column(VARCHAR(32), nullable=True)
-    realization = Column(VARCHAR(32), nullable=True)
+    design = Column(SmallInteger, nullable=False)
+    usability = Column(SmallInteger, nullable=False)
+    backend = Column(SmallInteger, nullable=False)
+    frontend = Column(SmallInteger, nullable=False)
+    realization = Column(SmallInteger, nullable=False)
     comment = Column(VARCHAR(255), nullable=True)
     job = Column(SmallInteger, ForeignKey('job.id_j', ondelete="CASCADE"), nullable=True)
     expert = Column(SmallInteger, ForeignKey('expert.id_e', ondelete="CASCADE"), nullable=True)
