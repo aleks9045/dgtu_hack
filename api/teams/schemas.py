@@ -21,3 +21,4 @@ class TeamPatchSchema(BaseModel):
 class AddJobSchema(BaseModel):
     github: str = Field(default=None)
     id_ca: int = Field()
+    id_t: int = Field()

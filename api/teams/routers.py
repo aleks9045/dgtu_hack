@@ -219,16 +219,17 @@ async def all_teams(session: AsyncSession = Depends(db_session.get_async_session
 @router.post('/job', summary="Add job")
 async def add_job(schema: AddJobSchema, payload: dict = Depends(token.check),
                   session: AsyncSession = Depends(db_session.get_async_session)):
-    schema = schema.model_dump()
     if schema["github"] is None:
         stmt = insert(JobModel).values(
-            case=schema['id_ca'])
+            case=schema['id_ca'],
+            team=schema['id_t'])
         await session.execute(statement=stmt)
         await session.commit()
     else:
         stmt = insert(JobModel).values(
             github=schema['github'],
-            case=schema['id_ca'])
+            case=schema['id_ca'],
+            team=schema['id_t'])
         await session.execute(statement=stmt)
         await session.commit()
     return JSONResponse(status_code=200, content={"detail": "Работа успешно добавлена."})
@@ -246,18 +247,14 @@ async def delete_job(id_j: int, payload: dict = Depends(token.check),
 async def get_job_by_team_id(id_t: int, payload: dict = Depends(token.check),
                              session: AsyncSession = Depends(db_session.get_async_session)):
     result = await session.execute(
-        select(TeamModel.job).where(TeamModel.id_t == id_t))
-    job_id = result.fetchone()[0]
-    if job_id is None:
+        select(JobModel.id_j, JobModel.github, JobModel.file, JobModel.case).where(JobModel.team == id_t))
+    job = result.fetchone()[0]
+    if job is None:
         return JSONResponse(status_code=200, content={})
-    result = await session.execute(
-        select(JobModel.id_j, JobModel.github, JobModel.file, JobModel.case).where(JobModel.id_j == job_id))
-    job = result.fetchone()
-    print(job)
     return JSONResponse(status_code=200, content={"id_j": job[0],
                                                   "github": job[1],
                                                   "file": job[2],
-                                                  "case": job[3], })
+                                                  "case": job[3]})
 
 
 @router.get('/all_job', summary="Get all jobs")

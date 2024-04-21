@@ -9,7 +9,6 @@ class TeamModel(Base):
     name = Column(VARCHAR(32), nullable=False, unique=True)
     about = Column(VARCHAR(255), nullable=True)
     banner = Column(VARCHAR(255), nullable=True)
-    job = Column(SmallInteger, ForeignKey('job.id_j', ondelete="SET NULL"), nullable=True, unique=True)
 
 
 class TeamLeadModel(Base):
@@ -25,3 +24,4 @@ class JobModel(Base):
     github = Column(VARCHAR(255), nullable=True)
     file = Column(VARCHAR(255), nullable=True)
     case = Column(SmallInteger, ForeignKey('case.id_ca', ondelete="CASCADE"), nullable=False)
+    team = Column(SmallInteger, ForeignKey('team.id_t', ondelete="CASCADE"), nullable=False, unique=True)
