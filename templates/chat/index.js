@@ -33,7 +33,7 @@ window.onload = function() {
         })
             .then((response) => response.json())
             .then((data) => {
-                const name = data.name
+                const name = data.first_name + " " + data.last_name
                 console.log(name)
                 localStorage.setItem('name', name)
             })
