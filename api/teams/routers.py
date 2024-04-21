@@ -301,6 +301,8 @@ async def all_case(session: AsyncSession = Depends(db_session.get_async_session)
             select(MarkModel.id_m, MarkModel.design, MarkModel.usability, MarkModel.frontend, MarkModel.backend,
                    MarkModel.realization).where(MarkModel.job == i[0]))
         mark = result.fetchone()
+        print(i)
+        print(mark)
         if mark is not None:
             res_dict.append({"id_j": i[0],
                              "github": i[1],

@@ -213,8 +213,8 @@ async def all_case(session: AsyncSession = Depends(db_session.get_async_session)
     return JSONResponse(status_code=200, content=res_dict)
 
 
-@router.post('/case', summary="Add case")
-async def add_case(schema: AddMarkSchema, payload: dict = Depends(token.check),
+@router.post('/mark', summary="Add mark")
+async def add_mark(schema: AddMarkSchema, payload: dict = Depends(token.check),
                    session: AsyncSession = Depends(db_session.get_async_session)):
     schema = schema.model_dump()
     if schema['user'] is not None:
