@@ -130,7 +130,7 @@ async def delete_user_from_team(id_u: int, payload: dict = Depends(token.check),
 
 
 @router.get("/users")
-async def get_all_users_from_team(id_t: int, payload: dict = Depends(token.check),
+async def get_all_users_from_team(id_t: int,
                                   session: AsyncSession = Depends(db_session.get_async_session)):
     res_dict = []
     result = await session.execute(
