@@ -8,7 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.auth.utils import password, token
 from api.experts.models import ExpertModel, CompanyModel, CaseModel, MarkModel
-from api.experts.schemas import ExpertLoginSchema, ExpertCreateSchema, AddCaseSchema, AddCaseFileSchema, AddMarkSchema
+from api.experts.schemas import ExpertLoginSchema, ExpertCreateSchema, AddCaseSchema, AddCaseFileSchema, AddMarkSchema, \
+    ChangeMarkSchema
 from database import db_session
 
 router = APIRouter(
@@ -242,3 +243,44 @@ async def add_mark(schema: AddMarkSchema, payload: dict = Depends(token.check),
     else:
         raise HTTPException(status_code=400, detail="Произошла ошибка.")
     return JSONResponse(status_code=200, content={"detail": "Успешно"})
+
+
+@router.patch('/mark', summary="Change mark")
+async def patch_mark(schema: ChangeMarkSchema, payload: dict = Depends(token.check),
+                      session: AsyncSession = Depends(db_session.get_async_session)):
+    schema = schema.model_dump()
+    if schema['user'] is not None:
+        result = await session.execute(select(
+            MarkModel.design, MarkModel.usability, MarkModel.backend, MarkModel.frontend, MarkModel.realization).where(
+            MarkModel.user == schema["user"]))
+        result = result.fetchone()
+        for count, i in enumerate(schema.keys()):
+            if schema[i] is None:
+                schema[i] = result[count]
+        stmt = update(MarkModel).where(MarkModel.user == schema["user"]).values(
+            design=schema["design"],
+            usability=schema["usability"],
+            backend=schema["backend"],
+            frontend=schema["frontend"],
+            realization=schema["realization"]
+        )
+        await session.execute(stmt)
+        await session.commit()
+    elif schema['expert'] is not None:
+        result = await session.execute(select(
+            MarkModel.design, MarkModel.usability, MarkModel.backend, MarkModel.frontend, MarkModel.realization).where(
+            MarkModel.expert == schema["expert"]))
+        result = result.fetchone()
+        for count, i in enumerate(schema.keys()):
+            if schema[i] is None:
+                schema[i] = result[count]
+        stmt = update(MarkModel).where(MarkModel.expert == schema["expert"]).values(
+            design=schema["design"],
+            usability=schema["usability"],
+            backend=schema["backend"],
+            frontend=schema["frontend"],
+            realization=schema["realization"]
+        )
+        await session.execute(stmt)
+        await session.commit()
+    return JSONResponse(status_code=200, content={"detail": "Успешно."})

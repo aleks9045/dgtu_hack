@@ -23,12 +23,21 @@ class AddCaseSchema(BaseModel):
 class AddCaseFileSchema(BaseModel):
     id_ca: int = Field()
 
-
 class AddMarkSchema(BaseModel):
     design: int = Field()
     usability: int = Field()
     backend: int = Field()
     frontend: int = Field()
     realization: int = Field()
+    expert: int = Field(default=None)
+    user: int = Field(default=None)
+
+
+class ChangeMarkSchema(BaseModel):
+    design: int = Field(default=None)
+    usability: int = Field(default=None)
+    backend: int = Field(default=None)
+    frontend: int = Field(default=None)
+    realization: int = Field(default=None)
     expert: int = Field(default=None)
     user: int = Field(default=None)
