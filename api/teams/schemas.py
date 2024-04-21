@@ -24,5 +24,5 @@ class AddJobSchema(BaseModel):
     id_t: int = Field()
 
 class PatchJobSchema(BaseModel):
-    id_j = int = Field()
+    id_j: int = Field()
     github: str = Field()
